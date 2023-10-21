@@ -43,12 +43,17 @@ function desktopApplication.redrawEvent()
     end
 end
 
+function desktopApplication.terminateEvent(event)
+    desktopApplication.closeProgram(event[1], "", 0, 0)
+end
+
 function desktopApplication.runDesktop()
     desktopApplication.draw.setWindowHeightAndWidthCurrentTerm(rootTermWidth, rootTermHeight)
     desktopApplication.draw.drawDesktop()
     desktopApplication.taskbar.setProperties("", "", 0, 0, rootTermWidth, rootTermHeight, desktopApplication.kernelEventHandler)
     desktopApplication.taskbar.drawTaskbar()
     desktopApplication.kernelEventHandler.setKernelRedrawEvent(desktopApplication.redrawEvent)
+    desktopApplication.kernelEventHandler.setKernelTerminateEvent(desktopApplication.terminateEvent)
     
     while true do
         local event, button, X, Y = desktopApplication.kernelEventHandler.pullKernelEvent()

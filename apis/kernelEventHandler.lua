@@ -3,6 +3,7 @@ local kernelEventHandlerPrivate = {}
 
 kernelEventHandlerPrivate.listOfEvents = require "/graphicalOS_system/apis/ListOfEvents"
 kernelEventHandlerPrivate.kernelRedrawEvent = function (craftOsEvents) end
+kernelEventHandlerPrivate.kernelTerminateEvent = function (craftOsEvents) end
 
 kernelEventHandler.kernelMethods = {}
 kernelEventHandler.kernelMethods.AddTask = function (addTaskFunc, useKernelEvents) return end
@@ -22,6 +23,12 @@ kernelEventHandler.kernelData.isProgramCurrentlyActive = false
 kernelEventHandler.kernelData.listOfProgramsAndTasks = {}
 kernelEventHandler.kernelData.listOfProgramsAndTasks.tasks = {}
 kernelEventHandler.kernelData.listOfProgramsAndTasks.programs = {}
+
+function kernelEventHandler.setKernelTerminateEvent(func)
+    if type(func) == "function" then
+        kernelEventHandlerPrivate.kernelTerminateEvent = func
+    end
+end
 
 function kernelEventHandler.setKernelRedrawEvent(func)
     if type(func) == "function" then
@@ -63,6 +70,8 @@ function kernelEventHandler.pullKernelEvent()
 
         if craftOsEvents[1] == kernelEventHandlerPrivate.listOfEvents.createGraphicalOsEventString("redraw_all") then
             kernelEventHandlerPrivate.kernelRedrawEvent(craftOsEvents)
+        elseif craftOsEvents[1] == "terminate" then
+            kernelEventHandlerPrivate.kernelTerminateEvent(craftOsEvents)
         else
             newCraftOsEvents = table.move(craftOsEvents, 1, #craftOsEvents, 1, newCraftOsEvents)
             break

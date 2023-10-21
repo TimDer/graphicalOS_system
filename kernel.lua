@@ -185,9 +185,15 @@ function kernelPrivate.runCoroutinesTasks(events)
     end
 end
 
-function kernelPrivate.executeProgram(value, events)
+function kernelPrivate.executeProgram(value, events, isRunningInActiveMode)
     kernelPrivate.redirectTermToTheDesignatedWindow(value.processWindow)
     local runCoroutine = true
+    local xSize, ySize = value.processWindow.window.getSize()
+    if isRunningInActiveMode then
+        value.processWindow.window.reposition(value.processWindow.startX, value.processWindow.startY, xSize, ySize)
+    else
+        value.processWindow.window.reposition(value.processWindow.startX, 99999999, xSize, ySize)
+    end
 
     if value.useKernelEvents == false and events[1] == kernelPrivate.listOfEvents.createGraphicalOsEventString("redraw_all") then
         runCoroutine = false
@@ -203,7 +209,7 @@ function kernelPrivate.blockCoroutineByEvent(events)
     local runProgram = true
 
     if kernelPrivate.listOfEvents.isEventFromCraftOs(events[1]) then
-        if events[1] == "mouse_click" or events[1] == "mouse_drag" or events[1] == "mouse_scroll" or events[1] == "mouse_up" or events[1] == "key_up" or events[1] == "key" or events[1] == "char" then
+        if events[1] == "mouse_click" or events[1] == "mouse_drag" or events[1] == "mouse_scroll" or events[1] == "mouse_up" or events[1] == "key_up" or events[1] == "key" or events[1] == "char" or events[1] == "terminate" then
             runProgram = false
         end
     end
@@ -212,18 +218,15 @@ function kernelPrivate.blockCoroutineByEvent(events)
 end
 
 function kernelPrivate.runCoroutinesPrograms(events)
-    local removeProgramOnTerminate = "";
     local uuid = ""
 
     for key, value in pairs(kernelPrivate.coroutines.programs) do
         kernelPrivate.areThereAnyPrograms = true
 
-        if value.isProgramCurrentlyActive and events[1] == "terminate" then
-            removeProgramOnTerminate = value.uuid
-        elseif value.isProgramCurrentlyActive then
+        if value.isProgramCurrentlyActive and events[1] ~= "terminate" then
             uuid = value.uuid
-        elseif kernelPrivate.blockCoroutineByEvent(events) then
-            kernelPrivate.executeProgram(value, events)
+        elseif kernelPrivate.blockCoroutineByEvent(events) and events[1] ~= "terminate" then
+            kernelPrivate.executeProgram(value, events, value.isProgramCurrentlyActive)
         end
 
         if coroutine.status(value.coroutine) == "dead" then
@@ -233,16 +236,12 @@ function kernelPrivate.runCoroutinesPrograms(events)
     end
 
     if uuid ~= "" then
-        kernelPrivate.executeProgram(kernelPrivate.coroutines.programs[uuid], events)
+        kernelPrivate.executeProgram(kernelPrivate.coroutines.programs[uuid], events, kernelPrivate.coroutines.programs[uuid].isProgramCurrentlyActive)
 
         if coroutine.status(kernelPrivate.coroutines.programs[uuid].coroutine) == "dead" then
             kernelPrivate.programOrTaskRedrawEvent = true
             kernelPrivate.coroutines.programs[uuid] = nil
         end
-    end
-
-    if events[1] == "terminate" and removeProgramOnTerminate ~= "" then
-        kernelPrivate.coroutines.programs[removeProgramOnTerminate] = nil
     end
 end
 
