@@ -1,6 +1,5 @@
 local desktopApplication = {}
 
-desktopApplication.desktopOption = "desktop"
 desktopApplication.kernelEventHandler = require "/graphicalOS_system/apis/kernelEventHandler"
 desktopApplication.draw = require "/graphicalOS_system/programs/Desktop/draw"
 desktopApplication.taskbar = require "/graphicalOS_system/programs/Desktop/taskbar"
@@ -9,7 +8,6 @@ desktopApplication.startmenu = require "/graphicalOS_system/programs/Desktop/sta
 local rootTermWidth, rootTermHeight = term.getSize()
 
 function desktopApplication.exitToDesktop()
-    desktopApplication.desktopOption = "desktop"
     desktopApplication.draw.drawDesktop()
     desktopApplication.taskbar.drawTaskbar()
 end
@@ -58,15 +56,12 @@ function desktopApplication.runDesktop()
     while true do
         local event, button, X, Y = desktopApplication.kernelEventHandler.pullKernelEvent()
 
+        desktopApplication.taskbar.setProperties(event, button, X, Y, rootTermWidth, rootTermHeight, desktopApplication.kernelEventHandler)
+        desktopApplication.startmenu.setProperties(event, button, X, Y, rootTermWidth, rootTermHeight, desktopApplication.kernelEventHandler, desktopApplication.taskbar)
 
-        if desktopApplication.desktopOption == "desktop" then
-            desktopApplication.taskbar.setProperties(event, button, X, Y, rootTermWidth, rootTermHeight, desktopApplication.kernelEventHandler)
-            desktopApplication.startmenu.setProperties(event, button, X, Y, rootTermWidth, rootTermHeight, desktopApplication.kernelEventHandler, desktopApplication.taskbar)
-
-            desktopApplication.startBtnClick(event, button, X, Y)
-            desktopApplication.closeProgram(event, button, X, Y)
-            desktopApplication.taskbar.selectProgramUuid()
-        end
+        desktopApplication.startBtnClick(event, button, X, Y)
+        desktopApplication.closeProgram(event, button, X, Y)
+        desktopApplication.taskbar.selectProgramUuid()
         
     end
 end
