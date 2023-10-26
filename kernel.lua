@@ -59,6 +59,12 @@ function kernelPrivate.setCurrentRunningProgram(uuid)
         end
 
         kernelPrivate.coroutines.programs[uuid].isProgramCurrentlyActive = true
+    elseif uuid == "" then
+        for key, value in pairs(kernelPrivate.coroutines.programs) do
+            if value.isProgramCurrentlyActive then
+                kernelPrivate.coroutines.programs[key].isProgramCurrentlyActive = false
+            end
+        end
     end
 
     return doesUuidExist
