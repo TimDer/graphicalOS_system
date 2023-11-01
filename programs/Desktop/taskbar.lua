@@ -238,6 +238,14 @@ function taskbar.selectProgramUuid()
     end
 end
 
+function taskbar.getNameByUuid(uuid)
+    if taskbarPrivate.listActivePrograms[uuid] ~= nil then
+        return taskbarPrivate.listActivePrograms[uuid].name
+    end
+
+    return "Program Name"
+end
+
 function taskbar.setProperties(event, button, X, Y, rootTermWidth, rootTermHeight, kernelEventHandler)
     taskbarPrivate.kernelEventHandler = kernelEventHandler
     taskbarPrivate.rootTermWidth = rootTermWidth

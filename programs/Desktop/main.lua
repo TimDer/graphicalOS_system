@@ -38,7 +38,7 @@ function desktopApplication.redrawEvent()
     if currentRunningProgramUuid == "" then
         desktopApplication.exitToDesktop()
     elseif currentRunningProgramUuid ~= "" then
-        desktopApplication.draw.drawWindow("Name", rootTermHeight - 1, rootTermWidth)
+        desktopApplication.draw.drawWindow(desktopApplication.taskbar.getNameByUuid(currentRunningProgramUuid), rootTermHeight - 1, rootTermWidth)
     end
 end
 
