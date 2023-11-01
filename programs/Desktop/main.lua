@@ -23,6 +23,15 @@ function desktopApplication.closeProgram(event, button, X, Y)
     end
 end
 
+function desktopApplication.minimiseProgram(event, button, X, Y)
+    if (event == "mouse_click" or event == "terminate") and desktopApplication.startmenu.closeProgramBlock == false then
+        if (Y == 1 and X == (rootTermWidth - 1)) or event == "terminate" then
+            desktopApplication.kernelEventHandler.kernelMethods.setCurrentRunningProgram("")
+            desktopApplication.exitToDesktop()
+        end
+    end
+end
+
 function desktopApplication.redrawEvent()
     local currentRunningProgramUuid = desktopApplication.kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid()
 
@@ -50,9 +59,10 @@ function desktopApplication.runDesktop()
 
         desktopApplication.taskbar.setProperties(event, button, X, Y, rootTermWidth, rootTermHeight, desktopApplication.kernelEventHandler)
         desktopApplication.startmenu.setProperties(event, button, X, Y, rootTermWidth, rootTermHeight, desktopApplication.kernelEventHandler, desktopApplication.taskbar, desktopApplication.exitToDesktop)
-        
+
         desktopApplication.startmenu.startBtnClick()
         desktopApplication.closeProgram(event, button, X, Y)
+        desktopApplication.minimiseProgram(event, button, X, Y)
         desktopApplication.taskbar.selectProgramUuid()
         
     end
