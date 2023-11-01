@@ -12,16 +12,8 @@ function desktopApplication.exitToDesktop()
     desktopApplication.taskbar.drawTaskbar()
 end
 
-function desktopApplication.startBtnClick(event, button, X, Y)
-    if event == "mouse_click" then
-        if Y == rootTermHeight and X >= 1 and X <= 9 then
-            desktopApplication.taskbar.startProgram("Shell", "/graphicalOS_system/programs/testProgram/main.lua", false)
-        end
-    end
-end
-
 function desktopApplication.closeProgram(event, button, X, Y)
-    if event == "mouse_click" or event == "terminate" then
+    if (event == "mouse_click" or event == "terminate") and desktopApplication.startmenu.closeProgramBlock == false then
         if (Y == 1 and X == rootTermWidth) or event == "terminate" then
             desktopApplication.taskbar.closeProgram(
                 desktopApplication.kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid()
@@ -57,9 +49,9 @@ function desktopApplication.runDesktop()
         local event, button, X, Y = desktopApplication.kernelEventHandler.pullKernelEvent()
 
         desktopApplication.taskbar.setProperties(event, button, X, Y, rootTermWidth, rootTermHeight, desktopApplication.kernelEventHandler)
-        desktopApplication.startmenu.setProperties(event, button, X, Y, rootTermWidth, rootTermHeight, desktopApplication.kernelEventHandler, desktopApplication.taskbar)
-
-        desktopApplication.startBtnClick(event, button, X, Y)
+        desktopApplication.startmenu.setProperties(event, button, X, Y, rootTermWidth, rootTermHeight, desktopApplication.kernelEventHandler, desktopApplication.taskbar, desktopApplication.exitToDesktop)
+        
+        desktopApplication.startmenu.startBtnClick()
         desktopApplication.closeProgram(event, button, X, Y)
         desktopApplication.taskbar.selectProgramUuid()
         
