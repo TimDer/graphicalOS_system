@@ -36,10 +36,12 @@ startmenu.desktopOption = "desktop"
 function startmenuPrivate.drawMenu()
     startmenuPrivate.exitToDesktop()
 
-    term.setBackgroundColor(128)
-    for index = 1, (startmenuPrivate.rootTermHeight - 1), 1 do
-        term.setCursorPos(1, index)
-        term.clearLine()
+    if startmenuPrivate.minimisedProgramUuid ~= "" then
+        term.setBackgroundColor(128)
+        for index = 1, (startmenuPrivate.rootTermHeight - 1), 1 do
+            term.setCursorPos(1, index)
+            term.clearLine()
+        end
     end
 
     local menuHight = startmenuPrivate.getMenuHight()
@@ -136,7 +138,9 @@ function startmenu.startBtnClick()
     if startmenuPrivate.Event == "mouse_click" then
         if (startmenuPrivate.Y == startmenuPrivate.rootTermHeight and startmenuPrivate.X >= 1 and startmenuPrivate.X <= 9) and startmenu.desktopOption == "desktop" then
             startmenuPrivate.minimisedProgramUuid = startmenuPrivate.kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid()
-            startmenuPrivate.kernelEventHandler.kernelMethods.setCurrentRunningProgram("")
+            if startmenuPrivate.minimisedProgramUuid ~= "" then
+                startmenuPrivate.kernelEventHandler.kernelMethods.setCurrentRunningProgram("")
+            end
 
             startmenu.desktopOption = "startmenu"
             startmenuPrivate.drawStartmenu()
