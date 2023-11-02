@@ -5,6 +5,22 @@ graphicalOsRootSettings.programs_dir = "/graphicalOS_data/programs"
 graphicalOsRootSettings.user_profile_dir = "/graphicalOS_data/users"
 graphicalOsRootSettings.settings_start_dir = "/graphicalOS_data/system-programs/settings/start"
 
+function graphicalOsRootSettings.file_exists(name)
+    local f=io.open(name,"r")
+    if f~=nil then
+        io.close(f) 
+        return true
+    else
+        return false
+    end
+end
+
+function graphicalOsRootSettings.delete_file_exists(name)
+    if graphicalOsRootSettings.file_exists(name) then
+        fs.delete(name)
+    end
+end
+
 function graphicalOsRootSettings.prepareGraphicalOsForBoot()
     term.clear()
     term.setBackgroundColor(8)
