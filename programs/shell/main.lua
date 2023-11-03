@@ -1,5 +1,10 @@
 shell.setDir("/")
 
+local addCommandPath = ":/graphicalOS_system/programs/shell/commands"
+if string.gmatch(shell.path(), addCommandPath)() == nil then
+    shell.setPath(shell.path() .. addCommandPath) 
+end
+
 local whileShell = true
 
 shellCommandHistory = {}
@@ -13,8 +18,6 @@ while whileShell do
     table.insert( shellCommandHistory, command )
     if command == "exit" then
         print("In order to exit the shell, close the window.")
-    elseif command == "clear" then
-        shell.run(command)
     else
         shell.run( command )
     end
