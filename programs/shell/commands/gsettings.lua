@@ -12,3 +12,11 @@ if args[1] == "startup" and args[2] == "false" then
         fs.delete("/startup.lua")
     end
 end
+
+if args[1] == "startup" and args[2] == "status" then
+    if settingsApi.file_exists("/startup.lua") then
+        print("Startup status: true")
+    else
+        print("Startup status: false")
+    end
+end

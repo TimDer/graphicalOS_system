@@ -45,7 +45,8 @@ function completionFunctionsPrivate.gsettings(currentShell, index, argument, pre
     elseif index == 2 and previous[2] == "startup" then
         local getArgumentEnd = completionFunctionsPrivate.checkWhichArgumentToUse(argument, {
             "true",
-            "false"
+            "false",
+            "status"
         })
         
         if getArgumentEnd ~= nil then
