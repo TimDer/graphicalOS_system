@@ -1,9 +1,13 @@
+local completionFunctions = require "/graphicalOS_system/programs/shell/completionFunctions"
+
 shell.setDir("/")
 
 local addCommandPath = ":/graphicalOS_system/programs/shell/commands"
 if string.gmatch(shell.path(), addCommandPath)() == nil then
     shell.setPath(shell.path() .. addCommandPath) 
 end
+
+completionFunctions.setFunctions()
 
 local whileShell = true
 
