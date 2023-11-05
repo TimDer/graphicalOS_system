@@ -1,6 +1,16 @@
+local args = {...}
 local completionFunctions = require "/graphicalOS_system/programs/shell/completionFunctions"
 
 shell.setDir("/")
+
+local shellMode = "gui"
+if args[1] == "nogui" then
+    shellMode = args[1]
+    term.clear()
+    term.setTextColour(16)
+    term.setCursorPos(1, 1)
+    print("Graphical OS Shell")
+end
 
 local addCommandPath = ":/graphicalOS_system/programs/shell/commands"
 if string.gmatch(shell.path(), addCommandPath)() == nil then
@@ -8,7 +18,6 @@ if string.gmatch(shell.path(), addCommandPath)() == nil then
 end
 
 completionFunctions.setFunctions()
-
 local whileShell = true
 
 shellCommandHistory = {}
@@ -20,8 +29,10 @@ while whileShell do
     
     local command = read( nil, shellCommandHistory, shell.complete )
     table.insert( shellCommandHistory, command )
-    if command == "exit" then
+    if command == "exit" and shellMode == "gui" then
         print("In order to exit the shell, close the window.")
+    elseif command == "exit" and shellMode == "nogui" then
+        shell.run("shutdown")
     else
         shell.run( command )
     end
