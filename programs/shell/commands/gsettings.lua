@@ -3,7 +3,7 @@ local settingsApi = require "/graphicalOS_system/apis/settings"
 
 if args[1] == "startup" and args[2] == "true" then
     local startupFile = fs.open("/startup.lua", "w")
-    startupFile.write("shell.run(\"/graphicalOS_system/example.lua\")")
+    startupFile.write("shell.run(\"/graphicalOS_system/startup.lua\")")
     startupFile.close()
 end
 
