@@ -10,7 +10,6 @@ kernelEventHandler.kernelMethods.AddTask = function (addTaskFunc, useKernelEvent
 kernelEventHandler.kernelMethods.AddProgram = function (addTaskFunc, useKernelEvents, processWindow) return end
 kernelEventHandler.kernelMethods.createWindow = function (parentTerm, x, y, width, height) end
 kernelEventHandler.kernelMethods.getListOfRunningTasksAndPrograms = function () end
-kernelEventHandler.kernelMethods.eventRedrawKernelWindow = function (programOrTaskUuid) end
 kernelEventHandler.kernelMethods.closeTaskOrProgram = function (programOrTaskUuid) end
 kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid = function () return "" end
 kernelEventHandler.kernelMethods.setCurrentRunningProgram = function (uuid) end
@@ -46,7 +45,6 @@ function kernelEventHandler.pullKernelEvent()
               createWindow,
               rootTerm,
               getListOfRunningTasksAndPrograms,
-              eventRedrawKernelWindow,
               uuid,
               isProgramCurrentlyActive,
               closeTaskOrProgram,
@@ -58,7 +56,6 @@ function kernelEventHandler.pullKernelEvent()
         kernelEventHandler.kernelMethods.AddProgram = AddProgram
         kernelEventHandler.kernelMethods.createWindow = createWindow
         kernelEventHandler.kernelMethods.getListOfRunningTasksAndPrograms = getListOfRunningTasksAndPrograms
-        kernelEventHandler.kernelMethods.eventRedrawKernelWindow = eventRedrawKernelWindow
         kernelEventHandler.kernelMethods.closeTaskOrProgram = closeTaskOrProgram
         kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid = getCurrentRunningProgramUuid
         kernelEventHandler.kernelMethods.setCurrentRunningProgram = setCurrentRunningProgram

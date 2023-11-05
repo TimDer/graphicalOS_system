@@ -114,18 +114,6 @@ function kernelPrivate.getCurrentRunningProgramUuid()
     return uuidString
 end
 
-function kernelPrivate.eventRedrawKernelWindow(programOrTaskUuid)
-    if kernelPrivate.coroutines.programs[programOrTaskUuid] ~= nil then
-        kernelPrivate.coroutines.programs[programOrTaskUuid].processWindow.window.redraw()
-        return true
-    elseif kernelPrivate.coroutines.tasks[programOrTaskUuid] ~= nil then
-        kernelPrivate.coroutines.tasks[programOrTaskUuid].processWindow.window.redraw()
-        return true
-    end
-
-    return false
-end
-
 function kernelPrivate.detectWhichEventtypeToUse(programOrTaskValue, craftOsEvents)
     if programOrTaskValue.useKernelEvents == true then
         return craftOsEvents,
@@ -134,7 +122,6 @@ function kernelPrivate.detectWhichEventtypeToUse(programOrTaskValue, craftOsEven
                kernel.createWindow,
                kernelPrivate.rootTerm,
                kernelPrivate.getListOfRunningTasksAndPrograms,
-               kernelPrivate.eventRedrawKernelWindow,
                programOrTaskValue.uuid,
                programOrTaskValue.isProgramCurrentlyActive,
                kernelPrivate.closeTaskOrProgram,
