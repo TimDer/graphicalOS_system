@@ -178,6 +178,19 @@ function kernelPrivate.runCoroutinesTasks(events)
     end
 end
 
+function kernelPrivate.blockXandYPosition(events, processWindow)
+    local returnValue = true
+    local xSize, ySize = processWindow.window.getSize()
+
+    if events[1] == "mouse_click" or events[1] == "mouse_drag" or events[1] == "mouse_scroll" or events[1] == "mouse_up" then
+        if (events[3] >= processWindow.startX and events[4] >= processWindow.startY and events[3] <= xSize + (processWindow.startX - 1) and events[4] <= ySize + (processWindow.startY - 1)) == false then
+            returnValue = false
+        end
+    end
+
+    return returnValue
+end
+
 function kernelPrivate.executeProgram(value, events, isRunningInActiveMode)
     kernelPrivate.redirectTermToTheDesignatedWindow(value.processWindow)
     local runCoroutine = true
@@ -192,7 +205,7 @@ function kernelPrivate.executeProgram(value, events, isRunningInActiveMode)
         runCoroutine = false
     end
 
-    if runCoroutine then
+    if runCoroutine and kernelPrivate.blockXandYPosition(events, value.processWindow) then
         coroutine.resume(value.coroutine, kernelPrivate.detectWhichEventtypeToUse(value, kernelPrivate.fixXandYPositioning(events, value.processWindow))) 
     end
     term.redirect(kernelPrivate.rootTerm)
