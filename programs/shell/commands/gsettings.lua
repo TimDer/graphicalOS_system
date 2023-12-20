@@ -7,16 +7,24 @@ local function changeStartupStatus(startupWithGui)
         replaceStartupFileContentsWith = "shell.run(\"/graphicalOS_system/programs/shell/main.lua nogui\")"
     end
 
-    local startupFileRead = fs.open("/startup.lua", "r")
-    local dataFromStartupFile = startupFileRead.readLine()
-    if dataFromStartupFile == "shell.run(\"/graphicalOS_system/startup.lua\")" or dataFromStartupFile == "shell.run(\"/graphicalOS_system/programs/shell/main.lua nogui\")" then
+    local createStartupFile = function ()
         local startupFileWrite = fs.open("/startup.lua", "w")
         startupFileWrite.write(replaceStartupFileContentsWith)
         startupFileWrite.close()
-    else
-        print("Can not edit a custom startup file")
     end
-    startupFileRead.close()
+
+    if settingsApi.file_exists("/startup.lua") then
+        local startupFileRead = fs.open("/startup.lua", "r")
+        local dataFromStartupFile = startupFileRead.readLine()
+        if dataFromStartupFile == "shell.run(\"/graphicalOS_system/startup.lua\")" or dataFromStartupFile == "shell.run(\"/graphicalOS_system/programs/shell/main.lua nogui\")" then
+            createStartupFile()
+        else
+            print("Can not edit a custom startup file")
+        end
+        startupFileRead.close()
+    else
+        createStartupFile()
+    end
 end
 
 if args[1] == "startup" and args[2] == "true" then
