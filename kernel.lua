@@ -354,6 +354,10 @@ function kernel.AddTask(taskPath, useKernelEvents)
 
     kernelPrivate.createCoroutine("tasks", function ()
         shell.run(taskPath)
+
+        while true do
+            local events = {coroutine.yield()}
+        end
     end, true, useKernelEvents, taskWindow)
 end
 
@@ -370,6 +374,10 @@ function kernel.AddProgram(programPath, useKernelEvents, processWindow)
 
     kernelPrivate.createCoroutine("programs", function ()
         shell.run(programPath)
+
+        while true do
+            local events = {coroutine.yield()}
+        end
     end, true, useKernelEvents, processWindow)
 end
 
