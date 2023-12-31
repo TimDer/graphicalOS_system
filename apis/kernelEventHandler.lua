@@ -7,7 +7,7 @@ kernelEventHandlerPrivate.kernelTerminateEvent = function (craftOsEvents) end
 
 kernelEventHandler.kernelMethods = {}
 kernelEventHandler.kernelMethods.AddTask = function (addTaskFunc, useKernelEvents) return end
-kernelEventHandler.kernelMethods.AddProgram = function (addTaskFunc, useKernelEvents, processWindow) return end
+kernelEventHandler.kernelMethods.AddProgram = function (programPath, useKernelEvents, processWindow) return end
 kernelEventHandler.kernelMethods.createWindow = function (parentTerm, x, y, width, height) end
 kernelEventHandler.kernelMethods.getListOfRunningTasksAndPrograms = function () end
 kernelEventHandler.kernelMethods.closeTaskOrProgram = function (programOrTaskUuid) end

@@ -136,6 +136,10 @@ function taskbar.startProgram(programName, programPath, useKernelEvents)
 
     local programUuid = taskbarPrivate.kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid()
 
+    taskbarPrivate.addProgramToList(programName, programUuid)
+end
+
+function taskbarPrivate.addProgramToList(programName, programUuid)
     table.insert(taskbarPrivate.listActiveProgramsOrder, programUuid)
     taskbarPrivate.listActivePrograms[programUuid] = {
         name = programName,
@@ -243,7 +247,29 @@ function taskbar.getNameByUuid(uuid)
         return taskbarPrivate.listActivePrograms[uuid].name
     end
 
-    return "Program Name"
+    return "Unknown program"
+end
+
+function taskbarPrivate.doesNotUuidExist(t)
+    local returnValue = true
+
+    if taskbarPrivate.listActivePrograms[t.uuid] ~= nil then
+        returnValue = false
+    end
+
+    return returnValue
+end
+
+function taskbarPrivate.updateTaskBarProgramListIfTheKernelHasMore()
+    local list = taskbarPrivate.kernelEventHandler.kernelMethods.getListOfRunningTasksAndPrograms()
+
+    if list ~= nil then
+        for key, value in pairs(list.programs) do
+            if taskbarPrivate.doesNotUuidExist(value) then
+                taskbarPrivate.addProgramToList("Unknown program", value.uuid)
+            end
+        end
+    end
 end
 
 function taskbar.setProperties(event, button, X, Y, rootTermWidth, rootTermHeight, kernelEventHandler)
@@ -254,6 +280,7 @@ function taskbar.setProperties(event, button, X, Y, rootTermWidth, rootTermHeigh
     taskbarPrivate.button = button
     taskbarPrivate.X = X
     taskbarPrivate.Y = Y
+    taskbarPrivate.updateTaskBarProgramListIfTheKernelHasMore()
 end
 
 return taskbar
