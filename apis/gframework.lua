@@ -225,7 +225,7 @@ gframework.createItemGroup = function ()
             returnValue.radioButtonHasChanged = false
             returnValue.radioButtonChangedToKey = 0
 
-            if currentCheckedKey ~= 0 then
+            if currentCheckedKey ~= 0 and events[1] == "mouse_click" then
                 for key, value in pairs(radioButtonItem.buttonsList) do
                     if key ~= currentCheckedKey and events[3] == value.radioButtonPosX and events[4] == value.radioButtonPosY then
                         radioButtonItem.buttonsList[currentCheckedKey].checked = false
@@ -563,6 +563,7 @@ gframework.topBar = {
                     end
                 else
                     if gframework.topBar.openMenuId ~= 0 then
+                        gframework.topBar.blockItemGroup(true)
                         local menuPosX = 2
                         for key, value in pairs(gframework.topBar.menus) do
                             if key == gframework.topBar.openMenuId then
