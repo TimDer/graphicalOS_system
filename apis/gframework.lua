@@ -137,7 +137,7 @@ gframework.createItemGroup = function ()
         end
     end
 
-    itemGroup.createFileBrowserBox = function (fileBrowserBoxPath, fileBrowserBoxPosX, fileBrowserBoxPosY, fileBrowserBoxWidth, fileBrowserBoxHeight)
+    itemGroup.createFileBrowserBox = function (fileBrowserBoxPath, fileBrowserBoxPosX, fileBrowserBoxPosY, fileBrowserBoxWidth, fileBrowserBoxHeight, backBtnEnabled)
         local fileBrowserBoxItem = {}
         local fileBrowserBoxReturn = {}
 
@@ -150,6 +150,7 @@ gframework.createItemGroup = function ()
         fileBrowserBoxItem.directoryTableCurrentTopKey = 0
         fileBrowserBoxItem.selectedFileOrFolder = 0
         fileBrowserBoxItem.isDoubleClickEnabled = false
+        fileBrowserBoxItem.isBackBtnEnabled = backBtnEnabled
 
         fileBrowserBoxItem.fileBrowserBoxOnFileChange = function (file, isAFolder) end
         fileBrowserBoxItem.fileBrowserBoxDoubleClick = function (file, isAFolder) end
@@ -197,12 +198,16 @@ gframework.createItemGroup = function ()
                 term.setBackgroundColor(1)
             end
 
-            term.setBackgroundColor(128)
-            term.setCursorPos(fileBrowserBoxPosX, fileBrowserBoxPosY)
-            term.write("<-")
+            local pathPlusPosX = 0
+            if fileBrowserBoxItem.isBackBtnEnabled == true then
+                pathPlusPosX = 2
+                term.setBackgroundColor(128)
+                term.setCursorPos(fileBrowserBoxPosX, fileBrowserBoxPosY)
+                term.write("<-")
+            end
 
             term.setBackgroundColor(256)
-            term.setCursorPos(fileBrowserBoxPosX + 2, fileBrowserBoxPosY)
+            term.setCursorPos(fileBrowserBoxPosX + pathPlusPosX, fileBrowserBoxPosY)
             term.write(string.sub(fileBrowserBoxItem.currentPath, 1, fileBrowserBoxItem.sizeX - 2))
 
             if fileBrowserBoxItem.directoryTableCurrentTopKey ~= 0 then
@@ -308,7 +313,7 @@ gframework.createItemGroup = function ()
                 end
 
                 if events[3] >= fileBrowserBoxPosX and events[3] <= fileBrowserBoxPosX + 1 and events[4] == fileBrowserBoxPosY then
-                    if type(fileBrowserBoxItem.fileBrowserBoxDoubleClick) == "function" then
+                    if type(fileBrowserBoxItem.fileBrowserBoxDoubleClick) == "function" and fileBrowserBoxItem.isBackBtnEnabled == true then
                         fileBrowserBoxItem.fileBrowserBoxDoubleClick("/" .. shell.resolve(fileBrowserBoxItem.currentPath .. "/.."), true)
                     end
                 end
