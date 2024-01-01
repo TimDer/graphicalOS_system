@@ -136,6 +136,213 @@ gframework.createItemGroup = function ()
             itemGroup.excludeFromExecutionBool = bool
         end
     end
+
+    itemGroup.createFileBrowserBox = function (fileBrowserBoxPath, fileBrowserBoxPosX, fileBrowserBoxPosY, fileBrowserBoxWidth, fileBrowserBoxHeight)
+        local fileBrowserBoxItem = {}
+        local fileBrowserBoxReturn = {}
+
+        local xSize, ySize = term.getSize()
+
+        fileBrowserBoxItem.currentPath = fileBrowserBoxPath
+        fileBrowserBoxItem.sizeX = xSize
+        fileBrowserBoxItem.sizeY = ySize
+        fileBrowserBoxItem.directoryTable = {}
+        fileBrowserBoxItem.directoryTableCurrentTopKey = 0
+        fileBrowserBoxItem.selectedFileOrFolder = 0
+        fileBrowserBoxItem.isDoubleClickEnabled = false
+
+        fileBrowserBoxItem.fileBrowserBoxOnFileChange = function (file, isAFolder) end
+        fileBrowserBoxItem.fileBrowserBoxDoubleClick = function (file, isAFolder) end
+
+        fileBrowserBoxItem.bufferLoadTheItemsInCurrentPath = function ()
+            local filesAndFoldersInDirectory = fs.list(fileBrowserBoxItem.currentPath)
+
+            fileBrowserBoxItem.directoryTable = {}
+
+            for key, value in pairs(filesAndFoldersInDirectory) do
+                if fs.isDir(fileBrowserBoxItem.currentPath .. "/" .. value) then
+                    table.insert(fileBrowserBoxItem.directoryTable, {
+                        type = "folder",
+                        name = value
+                    })
+                end
+            end
+
+            for key, value in pairs(filesAndFoldersInDirectory) do
+                if fs.isDir(fileBrowserBoxItem.currentPath .. "/" .. value) == false then
+                    table.insert(fileBrowserBoxItem.directoryTable, {
+                        type = "file",
+                        name = value
+                    })
+                end
+            end
+
+            if #fileBrowserBoxItem.directoryTable >= 1 then
+                fileBrowserBoxItem.directoryTableCurrentTopKey = 1
+            else
+                fileBrowserBoxItem.directoryTableCurrentTopKey = 0
+            end
+        end
+        fileBrowserBoxItem.bufferLoadTheItemsInCurrentPath()
+
+        fileBrowserBoxItem.draw = gframework.term.createDraw(function ()
+            term.setBackgroundColor(256)
+
+            for indexHeight = fileBrowserBoxPosY, fileBrowserBoxPosY + fileBrowserBoxHeight - 1, 1 do
+                for indexWidth = fileBrowserBoxPosX, fileBrowserBoxPosX + fileBrowserBoxWidth - 1, 1 do
+                    term.setCursorPos(indexWidth, indexHeight)
+                    term.write(" ")
+                end
+
+                term.setBackgroundColor(1)
+            end
+
+            term.setBackgroundColor(128)
+            term.setCursorPos(fileBrowserBoxPosX, fileBrowserBoxPosY)
+            term.write("<-")
+
+            term.setBackgroundColor(256)
+            term.setCursorPos(fileBrowserBoxPosX + 2, fileBrowserBoxPosY)
+            term.write(string.sub(fileBrowserBoxItem.currentPath, 1, fileBrowserBoxItem.sizeX - 2))
+
+            if fileBrowserBoxItem.directoryTableCurrentTopKey ~= 0 then
+                term.setBackgroundColor(1)
+                term.setTextColor(32768)
+                
+                for fileIndex = fileBrowserBoxItem.directoryTableCurrentTopKey, fileBrowserBoxItem.directoryTableCurrentTopKey + fileBrowserBoxHeight - 2, 1 do
+                    if fileBrowserBoxItem.directoryTable[fileIndex] == nil then
+                        break
+                    end
+
+                    if fileBrowserBoxItem.selectedFileOrFolder == fileIndex then
+                        for selectedIndexPosX = fileBrowserBoxPosX, fileBrowserBoxPosX + fileBrowserBoxWidth - 1, 1 do
+                            term.setCursorPos(selectedIndexPosX, fileBrowserBoxPosY + fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1))
+                            term.setBackgroundColor(2048)
+                            term.write(" ")
+                        end
+                    else
+                        term.setBackgroundColor(1)
+                    end
+
+                    term.setCursorPos(fileBrowserBoxPosX, fileBrowserBoxPosY + fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1))
+                    if fileBrowserBoxItem.directoryTable[fileIndex].type == "folder" then
+                        term.write("[=] " .. fileBrowserBoxItem.directoryTable[fileIndex].name)
+                    else
+                        term.write("[+] " .. fileBrowserBoxItem.directoryTable[fileIndex].name)
+                    end
+                end
+            end
+        end)
+        fileBrowserBoxItem.unselectItem = function (events)
+            if (events[4] >= fileBrowserBoxPosY + 1 and events[4] <= fileBrowserBoxPosY + fileBrowserBoxHeight - 1) == false then
+                local redrawFileBox = false
+                if fileBrowserBoxItem.selectedFileOrFolder >= 1 then
+                    redrawFileBox = true
+                end
+
+                fileBrowserBoxItem.selectedFileOrFolder = 0
+
+                if redrawFileBox then
+                    fileBrowserBoxItem.draw()
+                end
+            end
+        end
+
+        fileBrowserBoxItem.clickOnFile = function (events)
+            if events[4] >= fileBrowserBoxPosY + 1 and events[4] <= fileBrowserBoxPosY + fileBrowserBoxHeight - 1 and fileBrowserBoxItem.directoryTableCurrentTopKey >= 1 then
+                for fileIndex = fileBrowserBoxItem.directoryTableCurrentTopKey, fileBrowserBoxItem.directoryTableCurrentTopKey + fileBrowserBoxHeight - 2, 1 do
+                    if fileBrowserBoxItem.directoryTable[fileIndex] == nil then
+                        break
+                    end
+
+                    if (fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1)) == events[4] - fileBrowserBoxPosY then
+                        fileBrowserBoxItem.selectedFileOrFolder = fileIndex
+                        fileBrowserBoxItem.draw()
+
+                        local ifIsAFolder = false
+                        if fileBrowserBoxItem.directoryTable[fileIndex].type == "folder" then
+                            ifIsAFolder = true
+                        end
+
+                        local pathTofileOrFolder = "/"
+                        if fileBrowserBoxItem.currentPath ~= "/" then
+                            pathTofileOrFolder = fileBrowserBoxItem.currentPath .. "/" .. fileBrowserBoxItem.directoryTable[fileIndex].name
+                        else
+                            pathTofileOrFolder = "/" .. fileBrowserBoxItem.directoryTable[fileIndex].name
+                        end
+
+                        if fileBrowserBoxItem.isDoubleClickEnabled == true then
+                            if type(fileBrowserBoxItem.fileBrowserBoxDoubleClick) == "function" then
+                                fileBrowserBoxItem.fileBrowserBoxDoubleClick(pathTofileOrFolder, ifIsAFolder)
+                            end
+                        else
+                            if type(fileBrowserBoxItem.fileBrowserBoxOnFileChange) == "function" then
+                                fileBrowserBoxItem.fileBrowserBoxOnFileChange(pathTofileOrFolder, ifIsAFolder)
+                            end
+                            fileBrowserBoxItem.isDoubleClickEnabled = true
+                            gframework.timer.addTimer(0.2, function ()
+                                fileBrowserBoxItem.isDoubleClickEnabled = false
+                            end)
+                        end
+
+                        break
+                    end
+                end
+            end
+        end
+
+        fileBrowserBoxItem.action = gframework.createAction(function (events)
+            if events[1] == "mouse_scroll" and #fileBrowserBoxItem.directoryTable >= (fileBrowserBoxHeight - 1) then
+                if events[3] >= fileBrowserBoxPosX and events[3] <= fileBrowserBoxPosX + fileBrowserBoxWidth - 1 and events[4] >= fileBrowserBoxPosY + 1 and events[4] <= fileBrowserBoxPosY + fileBrowserBoxHeight - 1 then
+                    if events[2] == -1 and fileBrowserBoxItem.directoryTableCurrentTopKey - 1 >= 1 then
+                        fileBrowserBoxItem.directoryTableCurrentTopKey = fileBrowserBoxItem.directoryTableCurrentTopKey - 1
+                        fileBrowserBoxItem.draw()
+                    elseif events[2] == 1 and fileBrowserBoxItem.directoryTableCurrentTopKey + 1 <= #fileBrowserBoxItem.directoryTable - fileBrowserBoxHeight + 2 then
+                        fileBrowserBoxItem.directoryTableCurrentTopKey = fileBrowserBoxItem.directoryTableCurrentTopKey + 1
+                        fileBrowserBoxItem.draw()
+                    end
+                end
+            elseif events[1] == "mouse_click" then
+                if events[3] >= fileBrowserBoxPosX and events[3] <= fileBrowserBoxPosX + fileBrowserBoxWidth - 1 and events[4] >= fileBrowserBoxPosY and events[4] <= fileBrowserBoxPosY + fileBrowserBoxHeight - 1 then
+                    fileBrowserBoxItem.clickOnFile(events)
+                end
+
+                if events[3] >= fileBrowserBoxPosX and events[3] <= fileBrowserBoxPosX + 1 and events[4] == fileBrowserBoxPosY then
+                    if type(fileBrowserBoxItem.fileBrowserBoxDoubleClick) == "function" then
+                        fileBrowserBoxItem.fileBrowserBoxDoubleClick("/" .. shell.resolve(fileBrowserBoxItem.currentPath .. "/.."), true)
+                    end
+                end
+
+                fileBrowserBoxItem.unselectItem(events)
+            end
+        end)
+
+        fileBrowserBoxReturn.changeDirectory = function (changeDirectoryPath)
+            fileBrowserBoxItem.isDoubleClickEnabled = false
+            fileBrowserBoxItem.selectedFileOrFolder = 0
+            fileBrowserBoxItem.directoryTableCurrentTopKey = 0
+            fileBrowserBoxItem.directoryTable = {}
+            fileBrowserBoxItem.currentPath = changeDirectoryPath
+
+            fileBrowserBoxItem.bufferLoadTheItemsInCurrentPath()
+            fileBrowserBoxItem.draw()
+        end
+
+        fileBrowserBoxReturn.setBoubleClickFunc = function (func)
+            if type(func) == "function" then
+                fileBrowserBoxItem.fileBrowserBoxDoubleClick = func
+            end
+        end
+
+        fileBrowserBoxReturn.setOnFileChangeFunc = function (func)
+            if type(func) == "function" then
+                fileBrowserBoxItem.fileBrowserBoxOnFileChange = func
+            end
+        end
+
+        table.insert(itemGroup.items, fileBrowserBoxItem)
+        return fileBrowserBoxReturn
+    end
     
     itemGroup.createButton = function (nameString, X, Y, margin, backgroundColor, textColor, actionFunc)
         local button = {}
