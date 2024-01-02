@@ -143,6 +143,11 @@ gframework.createItemGroup = function ()
 
         local xSize, ySize = term.getSize()
 
+        fileBrowserBoxItem.fileBrowserBoxPosX = fileBrowserBoxPosX
+        fileBrowserBoxItem.fileBrowserBoxPosY = fileBrowserBoxPosY
+        fileBrowserBoxItem.fileBrowserBoxWidth = fileBrowserBoxWidth
+        fileBrowserBoxItem.fileBrowserBoxHeight = fileBrowserBoxHeight
+
         fileBrowserBoxItem.currentPath = fileBrowserBoxPath
         fileBrowserBoxItem.sizeX = xSize
         fileBrowserBoxItem.sizeY = ySize
@@ -189,8 +194,8 @@ gframework.createItemGroup = function ()
         fileBrowserBoxItem.draw = gframework.term.createDraw(function ()
             term.setBackgroundColor(256)
 
-            for indexHeight = fileBrowserBoxPosY, fileBrowserBoxPosY + fileBrowserBoxHeight - 1, 1 do
-                for indexWidth = fileBrowserBoxPosX, fileBrowserBoxPosX + fileBrowserBoxWidth - 1, 1 do
+            for indexHeight = fileBrowserBoxItem.fileBrowserBoxPosY, fileBrowserBoxItem.fileBrowserBoxPosY + fileBrowserBoxItem.fileBrowserBoxHeight - 1, 1 do
+                for indexWidth = fileBrowserBoxItem.fileBrowserBoxPosX, fileBrowserBoxItem.fileBrowserBoxPosX + fileBrowserBoxItem.fileBrowserBoxWidth - 1, 1 do
                     term.setCursorPos(indexWidth, indexHeight)
                     term.write(" ")
                 end
@@ -202,26 +207,26 @@ gframework.createItemGroup = function ()
             if fileBrowserBoxItem.isBackBtnEnabled == true then
                 pathPlusPosX = 2
                 term.setBackgroundColor(128)
-                term.setCursorPos(fileBrowserBoxPosX, fileBrowserBoxPosY)
+                term.setCursorPos(fileBrowserBoxItem.fileBrowserBoxPosX, fileBrowserBoxItem.fileBrowserBoxPosY)
                 term.write("<-")
             end
 
             term.setBackgroundColor(256)
-            term.setCursorPos(fileBrowserBoxPosX + pathPlusPosX, fileBrowserBoxPosY)
+            term.setCursorPos(fileBrowserBoxItem.fileBrowserBoxPosX + pathPlusPosX, fileBrowserBoxItem.fileBrowserBoxPosY)
             term.write(string.sub(fileBrowserBoxItem.currentPath, 1, fileBrowserBoxItem.sizeX - 2))
 
             if fileBrowserBoxItem.directoryTableCurrentTopKey ~= 0 then
                 term.setBackgroundColor(1)
                 term.setTextColor(32768)
                 
-                for fileIndex = fileBrowserBoxItem.directoryTableCurrentTopKey, fileBrowserBoxItem.directoryTableCurrentTopKey + fileBrowserBoxHeight - 2, 1 do
+                for fileIndex = fileBrowserBoxItem.directoryTableCurrentTopKey, fileBrowserBoxItem.directoryTableCurrentTopKey + fileBrowserBoxItem.fileBrowserBoxHeight - 2, 1 do
                     if fileBrowserBoxItem.directoryTable[fileIndex] == nil then
                         break
                     end
 
                     if fileBrowserBoxItem.selectedFileOrFolder == fileIndex then
-                        for selectedIndexPosX = fileBrowserBoxPosX, fileBrowserBoxPosX + fileBrowserBoxWidth - 1, 1 do
-                            term.setCursorPos(selectedIndexPosX, fileBrowserBoxPosY + fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1))
+                        for selectedIndexPosX = fileBrowserBoxItem.fileBrowserBoxPosX, fileBrowserBoxItem.fileBrowserBoxPosX + fileBrowserBoxItem.fileBrowserBoxWidth - 1, 1 do
+                            term.setCursorPos(selectedIndexPosX, fileBrowserBoxItem.fileBrowserBoxPosY + fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1))
                             term.setBackgroundColor(2048)
                             term.write(" ")
                         end
@@ -229,7 +234,7 @@ gframework.createItemGroup = function ()
                         term.setBackgroundColor(1)
                     end
 
-                    term.setCursorPos(fileBrowserBoxPosX, fileBrowserBoxPosY + fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1))
+                    term.setCursorPos(fileBrowserBoxItem.fileBrowserBoxPosX, fileBrowserBoxItem.fileBrowserBoxPosY + fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1))
                     if fileBrowserBoxItem.directoryTable[fileIndex].type == "folder" then
                         term.write("[=] " .. fileBrowserBoxItem.directoryTable[fileIndex].name)
                     else
@@ -239,7 +244,7 @@ gframework.createItemGroup = function ()
             end
         end)
         fileBrowserBoxItem.unselectItem = function (events)
-            if (events[4] >= fileBrowserBoxPosY + 1 and events[4] <= fileBrowserBoxPosY + fileBrowserBoxHeight - 1) == false then
+            if (events[4] >= fileBrowserBoxItem.fileBrowserBoxPosY + 1 and events[4] <= fileBrowserBoxItem.fileBrowserBoxPosY + fileBrowserBoxItem.fileBrowserBoxHeight - 1) == false then
                 local redrawFileBox = false
                 if fileBrowserBoxItem.selectedFileOrFolder >= 1 then
                     redrawFileBox = true
@@ -254,13 +259,13 @@ gframework.createItemGroup = function ()
         end
 
         fileBrowserBoxItem.clickOnFile = function (events)
-            if events[4] >= fileBrowserBoxPosY + 1 and events[4] <= fileBrowserBoxPosY + fileBrowserBoxHeight - 1 and fileBrowserBoxItem.directoryTableCurrentTopKey >= 1 then
-                for fileIndex = fileBrowserBoxItem.directoryTableCurrentTopKey, fileBrowserBoxItem.directoryTableCurrentTopKey + fileBrowserBoxHeight - 2, 1 do
+            if events[4] >= fileBrowserBoxItem.fileBrowserBoxPosY + 1 and events[4] <= fileBrowserBoxItem.fileBrowserBoxPosY + fileBrowserBoxItem.fileBrowserBoxHeight - 1 and fileBrowserBoxItem.directoryTableCurrentTopKey >= 1 then
+                for fileIndex = fileBrowserBoxItem.directoryTableCurrentTopKey, fileBrowserBoxItem.directoryTableCurrentTopKey + fileBrowserBoxItem.fileBrowserBoxHeight - 2, 1 do
                     if fileBrowserBoxItem.directoryTable[fileIndex] == nil then
                         break
                     end
 
-                    if (fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1)) == events[4] - fileBrowserBoxPosY then
+                    if (fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1)) == events[4] - fileBrowserBoxItem.fileBrowserBoxPosY then
                         fileBrowserBoxItem.selectedFileOrFolder = fileIndex
                         fileBrowserBoxItem.draw()
 
@@ -297,22 +302,22 @@ gframework.createItemGroup = function ()
         end
 
         fileBrowserBoxItem.action = gframework.createAction(function (events)
-            if events[1] == "mouse_scroll" and #fileBrowserBoxItem.directoryTable >= (fileBrowserBoxHeight - 1) then
-                if events[3] >= fileBrowserBoxPosX and events[3] <= fileBrowserBoxPosX + fileBrowserBoxWidth - 1 and events[4] >= fileBrowserBoxPosY + 1 and events[4] <= fileBrowserBoxPosY + fileBrowserBoxHeight - 1 then
+            if events[1] == "mouse_scroll" and #fileBrowserBoxItem.directoryTable >= (fileBrowserBoxItem.fileBrowserBoxHeight - 1) then
+                if events[3] >= fileBrowserBoxItem.fileBrowserBoxPosX and events[3] <= fileBrowserBoxItem.fileBrowserBoxPosX + fileBrowserBoxItem.fileBrowserBoxWidth - 1 and events[4] >= fileBrowserBoxItem.fileBrowserBoxPosY + 1 and events[4] <= fileBrowserBoxItem.fileBrowserBoxPosY + fileBrowserBoxItem.fileBrowserBoxHeight - 1 then
                     if events[2] == -1 and fileBrowserBoxItem.directoryTableCurrentTopKey - 1 >= 1 then
                         fileBrowserBoxItem.directoryTableCurrentTopKey = fileBrowserBoxItem.directoryTableCurrentTopKey - 1
                         fileBrowserBoxItem.draw()
-                    elseif events[2] == 1 and fileBrowserBoxItem.directoryTableCurrentTopKey + 1 <= #fileBrowserBoxItem.directoryTable - fileBrowserBoxHeight + 2 then
+                    elseif events[2] == 1 and fileBrowserBoxItem.directoryTableCurrentTopKey + 1 <= #fileBrowserBoxItem.directoryTable - fileBrowserBoxItem.fileBrowserBoxHeight + 2 then
                         fileBrowserBoxItem.directoryTableCurrentTopKey = fileBrowserBoxItem.directoryTableCurrentTopKey + 1
                         fileBrowserBoxItem.draw()
                     end
                 end
             elseif events[1] == "mouse_click" then
-                if events[3] >= fileBrowserBoxPosX and events[3] <= fileBrowserBoxPosX + fileBrowserBoxWidth - 1 and events[4] >= fileBrowserBoxPosY and events[4] <= fileBrowserBoxPosY + fileBrowserBoxHeight - 1 then
+                if events[3] >= fileBrowserBoxItem.fileBrowserBoxPosX and events[3] <= fileBrowserBoxItem.fileBrowserBoxPosX + fileBrowserBoxItem.fileBrowserBoxWidth - 1 and events[4] >= fileBrowserBoxItem.fileBrowserBoxPosY and events[4] <= fileBrowserBoxItem.fileBrowserBoxPosY + fileBrowserBoxItem.fileBrowserBoxHeight - 1 then
                     fileBrowserBoxItem.clickOnFile(events)
                 end
 
-                if events[3] >= fileBrowserBoxPosX and events[3] <= fileBrowserBoxPosX + 1 and events[4] == fileBrowserBoxPosY then
+                if events[3] >= fileBrowserBoxItem.fileBrowserBoxPosX and events[3] <= fileBrowserBoxItem.fileBrowserBoxPosX + 1 and events[4] == fileBrowserBoxItem.fileBrowserBoxPosY then
                     if type(fileBrowserBoxItem.fileBrowserBoxDoubleClick) == "function" and fileBrowserBoxItem.isBackBtnEnabled == true then
                         fileBrowserBoxItem.fileBrowserBoxDoubleClick("/" .. shell.resolve(fileBrowserBoxItem.currentPath .. "/.."), true)
                     end
@@ -343,6 +348,15 @@ gframework.createItemGroup = function ()
             if type(func) == "function" then
                 fileBrowserBoxItem.fileBrowserBoxOnFileChange = func
             end
+        end
+
+        fileBrowserBoxReturn.resizeFileBrowser = function (newPosX, newPosY, newWidth, newHeight)
+            fileBrowserBoxItem.fileBrowserBoxPosX = newPosX
+            fileBrowserBoxItem.fileBrowserBoxPosY = newPosY
+            fileBrowserBoxItem.fileBrowserBoxWidth = newWidth
+            fileBrowserBoxItem.fileBrowserBoxHeight = newHeight
+
+            fileBrowserBoxItem.draw()
         end
 
         table.insert(itemGroup.items, fileBrowserBoxItem)
