@@ -137,6 +137,54 @@ gframework.createItemGroup = function ()
         end
     end
 
+    itemGroup.createMiniWindow = function (miniWindowName, miniWindowPosX, miniWindowPosY, miniWindowWidth, miniWindowHeight, miniWindowBackgroundColor)
+        local miniWindowItem = {}
+        local miniWindowReturn = {}
+
+        miniWindowItem.onWindowClose = function () end
+
+        miniWindowItem.draw = gframework.term.createDraw(function ()
+            term.setBackgroundColor(miniWindowBackgroundColor)
+            for indexPosY = miniWindowPosY, miniWindowPosY + miniWindowHeight, 1 do
+                for indexPosX = miniWindowPosX, miniWindowPosX + miniWindowWidth - 1, 1 do
+                    term.setCursorPos(indexPosX, indexPosY)
+                    term.write(" ")
+                end
+            end
+            
+            term.setBackgroundColor(8192)
+            for indexPosX = miniWindowPosX, miniWindowPosX + miniWindowWidth - 1, 1 do
+                term.setCursorPos(indexPosX, miniWindowPosY)
+                term.write(" ")
+            end
+            term.setBackgroundColor(16384)
+            term.setCursorPos(miniWindowPosX + miniWindowWidth - 1, miniWindowPosY)
+            term.write("X")
+
+            term.setBackgroundColor(8192)
+            term.setCursorPos(miniWindowPosX, miniWindowPosY)
+            term.write(string.sub(miniWindowName, 1, miniWindowPosX + miniWindowWidth - 6))
+        end)
+
+        miniWindowItem.action = gframework.createAction(function (events)
+            if events[1] == "mouse_click" then
+                if events[3] == miniWindowPosX + miniWindowWidth - 1 and events[4] == miniWindowPosY then
+                    itemGroup.excludeFromExecution(true)
+                    miniWindowItem.onWindowClose()
+                end
+            end
+        end)
+
+        miniWindowReturn.setOnWindowClose = function (func)
+            if type(func) == "function" then
+                miniWindowItem.onWindowClose = func
+            end
+        end
+
+        table.insert(itemGroup.items, miniWindowItem)
+        return miniWindowReturn
+    end
+
     itemGroup.createFileBrowserBox = function (fileBrowserBoxPath, fileBrowserBoxPosX, fileBrowserBoxPosY, fileBrowserBoxWidth, fileBrowserBoxHeight, backBtnEnabled)
         local fileBrowserBoxItem = {}
         local fileBrowserBoxReturn = {}
