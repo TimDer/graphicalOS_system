@@ -404,19 +404,31 @@ gframework.createItemGroup = function ()
 
     itemGroup.createBox = function (boxPosX, boxPosY, boxColor, boxWidth, boxHight)
         local boxItem = {}
+        local boxItemReturn = {}
+
+        boxItem.boxDisplayAllowed = true
 
         boxItem.draw = gframework.term.createDraw(function ()
-            term.setBackgroundColor(boxColor)
+            if boxItem.boxDisplayAllowed == true then
+                term.setBackgroundColor(boxColor)
 
-            for indexPosY = boxPosY, boxPosY + boxHight - 1, 1 do
-                for indexPosX = boxPosX, boxPosX + boxWidth - 1, 1 do
-                    term.setCursorPos(indexPosX, indexPosY)
-                    term.write(" ")
+                for indexPosY = boxPosY, boxPosY + boxHight - 1, 1 do
+                    for indexPosX = boxPosX, boxPosX + boxWidth - 1, 1 do
+                        term.setCursorPos(indexPosX, indexPosY)
+                        term.write(" ")
+                    end
                 end
             end
         end)
 
+        boxItemReturn.setDisplayAllowed = function (bool)
+            if type(bool) == "boolean" then
+                boxItem.boxDisplayAllowed = bool
+            end
+        end
+
         table.insert(itemGroup.items, boxItem)
+        return boxItemReturn
     end
 
     itemGroup.createRadioButton = function (...)
