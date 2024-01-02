@@ -319,7 +319,7 @@ gframework.createItemGroup = function ()
 
                 if events[3] >= fileBrowserBoxItem.fileBrowserBoxPosX and events[3] <= fileBrowserBoxItem.fileBrowserBoxPosX + 1 and events[4] == fileBrowserBoxItem.fileBrowserBoxPosY then
                     if type(fileBrowserBoxItem.fileBrowserBoxDoubleClick) == "function" and fileBrowserBoxItem.isBackBtnEnabled == true then
-                        fileBrowserBoxItem.fileBrowserBoxDoubleClick("/" .. shell.resolve(fileBrowserBoxItem.currentPath .. "/.."), true)
+                        fileBrowserBoxReturn.changeDirectory("/" .. shell.resolve(fileBrowserBoxItem.currentPath .. "/.."))
                     end
                 end
 
