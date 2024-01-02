@@ -535,15 +535,23 @@ gframework.createItemGroup = function ()
         local labelReturn = {}
 
         labelItem.labelDisplayAllowed = true
+        labelItem.labelName = labelName
 
         labelItem.draw = gframework.term.createDraw(function ()
             if labelItem.labelDisplayAllowed == true then
                 term.setBackgroundColor(labelBackgroundColor)
                 term.setTextColor(labelTextColor)
                 term.setCursorPos(labelPosX, labelPosY)
-                term.write(labelName)
+                term.write(labelItem.labelName)
             end
         end)
+
+        labelReturn.setLabelName = function (newLabelName)
+            if type(newLabelName) == "string" then
+                labelItem.labelName = newLabelName
+                labelItem.draw()
+            end
+        end
 
         labelReturn.setDisplayAllowed = function (bool)
             if type(bool) == "boolean" then
