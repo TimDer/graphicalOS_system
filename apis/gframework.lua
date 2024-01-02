@@ -751,7 +751,8 @@ end
 
 gframeworkPrivate.topBar = {
     excludeItemGroupsFromExecutionTable = {},
-    isMenuOpen = false
+    isMenuOpen = false,
+    runAtTheEnd = {}
 }
 gframework.topBar = {
     menus = {},
@@ -761,6 +762,12 @@ gframework.topBar = {
         backgroundColor = 256,
         textColor = 1
     },
+
+    addFunctionAtTheEnd = function (func)
+        if type(func) == "function" then
+            table.insert(gframeworkPrivate.topBar.runAtTheEnd, func)
+        end
+    end,
 
     createTopBarMenuItem = function (itemName, func)
         return {
@@ -858,6 +865,16 @@ gframework.topBar = {
 
         if gframework.topBar.openMenuId == 0 and next(gframework.topBar.menus) ~= nil then
             gframeworkPrivate.topBar.isMenuOpen = false
+        end
+
+        if next(gframeworkPrivate.topBar.runAtTheEnd) ~= nil then
+            for key, value in pairs(gframeworkPrivate.topBar.runAtTheEnd) do
+                if type(value) == "function" then
+                    value()
+                end
+            end
+
+            gframeworkPrivate.topBar.runAtTheEnd = {}
         end
     end,
 
