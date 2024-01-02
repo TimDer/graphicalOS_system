@@ -712,10 +712,22 @@ gframework.topBar = {
     end,
 
     createTopBarMenu = function (menuName, ...)
-        table.insert(gframework.topBar.menus, {
+        local topBarMenu = {
             name = menuName,
+            allowDisplay = true,
             items = {...}
-        })
+        }
+        local topBarMenuReturn = {
+            allowDisplay = function (bool)
+                if type(bool) == "boolean" then
+                    topBarMenu.allowDisplay = bool
+                    gframework.topBar.draw()
+                end
+            end
+        }
+
+        table.insert(gframework.topBar.menus, topBarMenu)
+        return topBarMenuReturn
     end,
 
     excludeItemGroupsFromExecution = function (...)
@@ -742,7 +754,7 @@ gframework.topBar = {
             if next(gframework.topBar.menus) ~= nil then
                 local titlePosX = 2
                 for menuKey, menuValue in pairs(gframework.topBar.menus) do
-                    if type(menuValue.name) == "string" then
+                    if type(menuValue.name) == "string" and menuValue.allowDisplay == true then
                         term.setCursorPos(titlePosX, 1)
                         term.write(menuValue.name)
         
