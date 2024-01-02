@@ -506,15 +506,27 @@ gframework.createItemGroup = function ()
 
     itemGroup.createLabel = function (labelName, labelPosX, labelPosY, labelBackgroundColor, labelTextColor)
         local labelItem = {}
+        local labelReturn = {}
+
+        labelItem.labelDisplayAllowed = true
 
         labelItem.draw = gframework.term.createDraw(function ()
-            term.setBackgroundColor(labelBackgroundColor)
-            term.setTextColor(labelTextColor)
-            term.setCursorPos(labelPosX, labelPosY)
-            term.write(labelName)
+            if labelItem.labelDisplayAllowed == true then
+                term.setBackgroundColor(labelBackgroundColor)
+                term.setTextColor(labelTextColor)
+                term.setCursorPos(labelPosX, labelPosY)
+                term.write(labelName)
+            end
         end)
 
+        labelReturn.setDisplayAllowed = function (bool)
+            if type(bool) == "boolean" then
+                labelItem.labelDisplayAllowed = bool
+            end
+        end
+
         table.insert(itemGroup.items, labelItem)
+        return labelReturn
     end
 
     itemGroup.createCustomItem = function (item)
