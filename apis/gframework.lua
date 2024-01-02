@@ -159,6 +159,7 @@ gframework.createItemGroup = function ()
 
         fileBrowserBoxItem.fileBrowserBoxOnFileChange = function (file, isAFolder) end
         fileBrowserBoxItem.fileBrowserBoxDoubleClick = function (file, isAFolder) end
+        fileBrowserBoxItem.fileBrowserBoxOnBackBtnClick = function (file, isAFolder) end
 
         fileBrowserBoxItem.bufferLoadTheItemsInCurrentPath = function ()
             local filesAndFoldersInDirectory = fs.list(fileBrowserBoxItem.currentPath)
@@ -319,7 +320,8 @@ gframework.createItemGroup = function ()
 
                 if events[3] >= fileBrowserBoxItem.fileBrowserBoxPosX and events[3] <= fileBrowserBoxItem.fileBrowserBoxPosX + 1 and events[4] == fileBrowserBoxItem.fileBrowserBoxPosY then
                     if type(fileBrowserBoxItem.fileBrowserBoxDoubleClick) == "function" and fileBrowserBoxItem.isBackBtnEnabled == true then
-                        fileBrowserBoxReturn.changeDirectory("/" .. shell.resolve(fileBrowserBoxItem.currentPath .. "/.."))
+                        local backBtnPath = "/" .. shell.resolve(fileBrowserBoxItem.currentPath .. "/..")
+                        fileBrowserBoxItem.fileBrowserBoxOnBackBtnClick(backBtnPath, true)
                     end
                 end
 
@@ -357,6 +359,12 @@ gframework.createItemGroup = function ()
             fileBrowserBoxItem.fileBrowserBoxHeight = newHeight
 
             fileBrowserBoxItem.draw()
+        end
+
+        fileBrowserBoxReturn.setBackBtnAction = function (func)
+            if type(func) == "function" then
+                fileBrowserBoxItem.fileBrowserBoxOnBackBtnClick = func
+            end
         end
 
         table.insert(itemGroup.items, fileBrowserBoxItem)
