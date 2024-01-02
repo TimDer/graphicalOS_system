@@ -633,7 +633,7 @@ gframework.createItemGroup = function ()
     end
 
     itemGroup.draw = function ()
-        if next(itemGroup.items) ~= nil and itemGroup.excludeFromExecutionBool == false and itemGroup.blockItemGroupForTopBar == false then
+        if next(itemGroup.items) ~= nil and itemGroup.excludeFromExecutionBool == false then
             for key, value in pairs(itemGroup.items) do
                 if value.draw ~= nil then
                     gframework.term.termBackupReset(function ()
@@ -645,7 +645,7 @@ gframework.createItemGroup = function ()
     end
 
     itemGroup.run = function (events)
-        if next(itemGroup.items) ~= nil and itemGroup.excludeFromExecutionBool == false and itemGroup.blockItemGroupForTopBar == false then
+        if next(itemGroup.items) ~= nil and itemGroup.excludeFromExecutionBool == false then
             for key, value in pairs(itemGroup.items) do
                 if value.action ~= nil then
                     coroutine.resume(value.action, table.unpack(events))
@@ -852,7 +852,7 @@ gframework.draw = function (...)
     end
 
     for key, value in pairs(itemGroups) do
-        if type(value) == "table" and value.draw ~= nil then
+        if type(value) == "table" and value.draw ~= nil and value.blockItemGroupForTopBar == false then
             value.draw()
         end
     end
@@ -876,7 +876,7 @@ gframework.run = function (...)
             gframework.topBar.action(events)
         
             for key, value in pairs(itemGroups) do
-                if type(value) == "table" and value.run ~= nil then
+                if type(value) == "table" and value.run ~= nil and value.blockItemGroupForTopBar == false then
                     value.run(events)
                 end
             end
