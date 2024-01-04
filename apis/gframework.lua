@@ -323,11 +323,13 @@ gframework.createItemGroup = function ()
                             ifIsAFolder = true
                         end
 
-                        local pathTofileOrFolder = "/"
+                        local pathTofileOrFolder = {}
+                        pathTofileOrFolder.path = "/"
+                        pathTofileOrFolder.fileOrFolder = fileBrowserBoxItem.directoryTable[fileIndex].name
                         if fileBrowserBoxItem.currentPath ~= "/" then
-                            pathTofileOrFolder = fileBrowserBoxItem.currentPath .. "/" .. fileBrowserBoxItem.directoryTable[fileIndex].name
+                            pathTofileOrFolder.path = fileBrowserBoxItem.currentPath .. "/" .. fileBrowserBoxItem.directoryTable[fileIndex].name
                         else
-                            pathTofileOrFolder = "/" .. fileBrowserBoxItem.directoryTable[fileIndex].name
+                            pathTofileOrFolder.path = "/" .. fileBrowserBoxItem.directoryTable[fileIndex].name
                         end
 
                         if fileBrowserBoxItem.isDoubleClickEnabled == true then
