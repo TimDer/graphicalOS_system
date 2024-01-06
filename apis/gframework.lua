@@ -885,57 +885,65 @@ gframework.topBar = {
         end
     end,
 
+    clickOnMenuBar = function (events)
+        local drawFunc = function ()
+            gframework.topBar.blockItemGroup(false)
+            gframework.draw()
+            gframework.topBar.blockItemGroup(true)
+        end
+
+        gframework.topBar.blockItemGroup(true)
+    
+        local titlePosX = 2
+        for key, value in pairs(gframework.topBar.menus) do
+            if type(value.name) == "string" and value.allowDisplay == true then
+                if events[3] >= titlePosX and events[3] <= titlePosX + string.len(value.name) - 1 then
+                    gframework.topBar.openMenuId = key
+                    gframeworkPrivate.topBar.unlockItemGroups = true
+                    gframeworkPrivate.topBar.isMenuOpen = true
+                    drawFunc()
+                    break
+                else
+                    gframeworkPrivate.topBar.unlockItemGroups = true
+                    gframework.topBar.openMenuId = 0
+                end
+
+                titlePosX = titlePosX + string.len(value.name) + 1
+            end
+        end
+    end,
+
+    clickOutsideMenuBar = function (events)
+        if gframework.topBar.openMenuId ~= 0 then
+            gframework.topBar.blockItemGroup(true)
+            local menuPosX = 2
+            for key, value in pairs(gframework.topBar.menus) do
+                if key == gframework.topBar.openMenuId then
+                    break
+                end
+
+                menuPosX = menuPosX + string.len(value.name) + 1
+            end
+
+            for key, value in pairs(gframework.topBar.menus[gframework.topBar.openMenuId].items) do
+                if events[3] >= menuPosX and events[3] <= menuPosX + string.len(value.name) - 1 and events[4] == key + 1 then
+                    if value.func ~= nil then
+                        value.func()
+                    end
+                end
+            end
+        end
+
+        gframework.topBar.openMenuId = 0
+    end,
+
     action = function (events)
         if next(gframework.topBar.menus) ~= nil then
             if events[1] == "mouse_click" then
-                local drawFunc = function ()
-                    gframework.topBar.blockItemGroup(false)
-                    gframework.draw()
-                    gframework.topBar.blockItemGroup(true)
-                end
-    
                 if events[4] == 1 then
-                    gframework.topBar.blockItemGroup(true)
-    
-                    local titlePosX = 2
-                    for key, value in pairs(gframework.topBar.menus) do
-                        if type(value.name) == "string" and value.allowDisplay == true then
-                            if events[3] >= titlePosX and events[3] <= titlePosX + string.len(value.name) - 1 then
-                                gframework.topBar.openMenuId = key
-                                gframeworkPrivate.topBar.unlockItemGroups = true
-                                gframeworkPrivate.topBar.isMenuOpen = true
-                                drawFunc()
-                                break
-                            else
-                                gframeworkPrivate.topBar.unlockItemGroups = true
-                                gframework.topBar.openMenuId = 0
-                            end
-    
-                            titlePosX = titlePosX + string.len(value.name) + 1
-                        end
-                    end
+                    gframework.topBar.clickOnMenuBar(events)
                 else
-                    if gframework.topBar.openMenuId ~= 0 then
-                        gframework.topBar.blockItemGroup(true)
-                        local menuPosX = 2
-                        for key, value in pairs(gframework.topBar.menus) do
-                            if key == gframework.topBar.openMenuId then
-                                break
-                            end
-
-                            menuPosX = menuPosX + string.len(value.name) + 1
-                        end
-
-                        for key, value in pairs(gframework.topBar.menus[gframework.topBar.openMenuId].items) do
-                            if events[3] >= menuPosX and events[3] <= menuPosX + string.len(value.name) - 1 and events[4] == key + 1 then
-                                if value.func ~= nil then
-                                    value.func()
-                                end
-                            end
-                        end
-                    end
-
-                    gframework.topBar.openMenuId = 0
+                    gframework.topBar.clickOutsideMenuBar(events)
                 end
             end
         end
