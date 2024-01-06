@@ -938,11 +938,13 @@ gframework.topBar = {
             gframework.topBar.blockItemGroup(true)
             local menuPosX = 2
             for key, value in pairs(gframework.topBar.menus) do
-                if key == gframework.topBar.openMenuId then
-                    break
+                if value.allowDisplay == true then
+                    if key == gframework.topBar.openMenuId then
+                        break
+                    end
+    
+                    menuPosX = menuPosX + string.len(value.name) + 1
                 end
-
-                menuPosX = menuPosX + string.len(value.name) + 1
             end
 
             for key, value in pairs(gframework.topBar.menus[gframework.topBar.openMenuId].items) do
