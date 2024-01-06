@@ -75,7 +75,9 @@ gframework.tableContains = function (t_table, contains)
 end
 
 gframework.createAction = function (action)
-    return coroutine.create(function ()
+    local createItemGroupAction = {}
+
+    createItemGroupAction.coroutine = coroutine.create(function ()
         while true do
             local events = {os.pullEventRaw()}
 
@@ -84,6 +86,16 @@ gframework.createAction = function (action)
             end
         end
     end)
+
+    createItemGroupAction.func = function (events)
+        local isOk, param = coroutine.resume(createItemGroupAction.coroutine, table.unpack(events))
+
+        if not isOk then
+            error(param, 1)
+        end
+    end
+
+    return createItemGroupAction
 end
 
 gframework.createRadioButtonItem = function (radioButtonName, radioButtonPosX, radioButtonPosY, radioButtonBackgroundColor, radioButtonLabelBackgroundColor, radioButtonTextColor, checked, actionFunc)
@@ -742,7 +754,7 @@ gframework.createItemGroup = function ()
         if next(itemGroup.items) ~= nil and itemGroup.excludeFromExecutionBool == false then
             for key, value in pairs(itemGroup.items) do
                 if value.action ~= nil then
-                    coroutine.resume(value.action, table.unpack(events))
+                    value.action.func(events)
                 end
             end
         end
