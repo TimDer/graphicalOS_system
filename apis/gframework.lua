@@ -754,6 +754,7 @@ end
 gframeworkPrivate.topBar = {
     excludeItemGroupsFromExecutionTable = {},
     isMenuOpen = false,
+    unlockItemGroups = false,
     runAtTheEnd = {}
 }
 gframework.topBar = {
@@ -860,12 +861,16 @@ gframework.topBar = {
     end,
 
     endAction = function ()
-        if gframeworkPrivate.topBar.isMenuOpen == true then
+        if gframeworkPrivate.topBar.unlockItemGroups == true then
             gframework.topBar.blockItemGroup(false)
+        end
+
+        if gframeworkPrivate.topBar.isMenuOpen == true then
             gframework.draw()
         end
 
         if gframework.topBar.openMenuId == 0 and next(gframework.topBar.menus) ~= nil then
+            gframeworkPrivate.topBar.unlockItemGroups = false
             gframeworkPrivate.topBar.isMenuOpen = false
         end
 
@@ -894,15 +899,16 @@ gframework.topBar = {
     
                     local titlePosX = 2
                     for key, value in pairs(gframework.topBar.menus) do
-                        if type(value.name) == "string" then
+                        if type(value.name) == "string" and value.allowDisplay == true then
                             if events[3] >= titlePosX and events[3] <= titlePosX + string.len(value.name) - 1 then
                                 gframework.topBar.openMenuId = key
+                                gframeworkPrivate.topBar.unlockItemGroups = true
                                 gframeworkPrivate.topBar.isMenuOpen = true
                                 drawFunc()
                                 break
                             else
+                                gframeworkPrivate.topBar.unlockItemGroups = true
                                 gframework.topBar.openMenuId = 0
-                                drawFunc()
                             end
     
                             titlePosX = titlePosX + string.len(value.name) + 1
