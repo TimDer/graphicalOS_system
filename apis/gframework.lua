@@ -74,29 +74,37 @@ gframework.tableContains = function (t_table, contains)
     return returnValue
 end
 
-gframework.createAction = function (action)
-    local createItemGroupAction = {}
+gframework.action = {
+    createCoroutineAction = function (customCoroutineFunc)
+        local createItemGroupAction = {}
+    
+        createItemGroupAction.coroutine = coroutine.create(function ()
+            while true do
+                customCoroutineFunc()
+            end
+        end)
+    
+        createItemGroupAction.func = function (events)
+            local isOk, param = coroutine.resume(createItemGroupAction.coroutine, table.unpack(events))
+    
+            if not isOk then
+                error(param, 1)
+            end
+        end
+    
+        return createItemGroupAction
+    end,
 
-    createItemGroupAction.coroutine = coroutine.create(function ()
-        while true do
+    createAction = function (action)
+        return gframework.action.createCoroutineAction(function ()
             local events = {os.pullEventRaw()}
-
+    
             if type(action) == "function" then
                 action(events)
             end
-        end
-    end)
-
-    createItemGroupAction.func = function (events)
-        local isOk, param = coroutine.resume(createItemGroupAction.coroutine, table.unpack(events))
-
-        if not isOk then
-            error(param, 1)
-        end
+        end)
     end
-
-    return createItemGroupAction
-end
+}
 
 gframework.createRadioButtonItem = function (radioButtonName, radioButtonPosX, radioButtonPosY, radioButtonBackgroundColor, radioButtonLabelBackgroundColor, radioButtonTextColor, checked, actionFunc)
     local radioButtonItem = {}
@@ -178,7 +186,7 @@ gframework.createItemGroup = function ()
             term.write(string.sub(miniWindowName, 1, miniWindowPosX + miniWindowWidth - 6))
         end)
 
-        miniWindowItem.action = gframework.createAction(function (events)
+        miniWindowItem.action = gframework.action.createAction(function (events)
             if events[1] == "mouse_click" then
                 if events[3] == miniWindowPosX + miniWindowWidth - 1 and events[4] == miniWindowPosY then
                     itemGroup.excludeFromExecution(true)
@@ -364,7 +372,7 @@ gframework.createItemGroup = function ()
             end
         end
 
-        fileBrowserBoxItem.action = gframework.createAction(function (events)
+        fileBrowserBoxItem.action = gframework.action.createAction(function (events)
             if events[1] == "mouse_scroll" and #fileBrowserBoxItem.directoryTable >= (fileBrowserBoxItem.fileBrowserBoxHeight - 1) then
                 if events[3] >= fileBrowserBoxItem.fileBrowserBoxPosX and events[3] <= fileBrowserBoxItem.fileBrowserBoxPosX + fileBrowserBoxItem.fileBrowserBoxWidth - 1 and events[4] >= fileBrowserBoxItem.fileBrowserBoxPosY + 1 and events[4] <= fileBrowserBoxItem.fileBrowserBoxPosY + fileBrowserBoxItem.fileBrowserBoxHeight - 1 then
                     if events[2] == -1 and fileBrowserBoxItem.directoryTableCurrentTopKey - 1 >= 1 then
@@ -463,7 +471,7 @@ gframework.createItemGroup = function ()
             term.write(nameString)
         end)
 
-        button.action = gframework.createAction(function (events)
+        button.action = gframework.action.createAction(function (events)
             if events[1] == "mouse_click" then
                 if events[3] >= button.marginStartX and events[3] <= button.marginEndX and events[4] >= button.marginStartY and events[4] <= button.marginEndY then
                     actionFunc()
@@ -550,7 +558,7 @@ gframework.createItemGroup = function ()
             return returnValue
         end
 
-        radioButtonItem.action = gframework.createAction(function (events)
+        radioButtonItem.action = gframework.action.createAction(function (events)
             local currentCheckedKey = radioButtonItem.getCurrentCheckedKey()
             local newChecked = radioButtonItem.changeCurrentCheckedKey(currentCheckedKey, events)
 
@@ -583,7 +591,7 @@ gframework.createItemGroup = function ()
             end
         end)
 
-        checkBoxItem.action = gframework.createAction(function (events)
+        checkBoxItem.action = gframework.action.createAction(function (events)
             if events[1] == "mouse_click" then
                 if events[3] == checkBoxPosX and events[4] == checkBoxPosY then
                     if checkBoxItem.checked == true then
@@ -726,7 +734,7 @@ gframework.createItemGroup = function ()
             end
         end
 
-        readBarItem.action = gframework.createAction(function (events)
+        readBarItem.action = gframework.action.createAction(function (events)
             if gframeworkPrivate.hasBlinkNotBeenSet == true then
                 readBarItem.openOrCloseReadBar(events)
                 readBarItem.typeKeysIntoTheInput(events)
