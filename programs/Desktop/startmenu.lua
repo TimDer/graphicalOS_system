@@ -11,7 +11,6 @@ startmenuPrivate.X = 0
 startmenuPrivate.Y = 0
 startmenuPrivate.exitToDesktop = function () end
 startmenuPrivate.minimisedProgramUuid = ""
-startmenu.closeProgramBlock = false
 
 --[[
     {
@@ -42,6 +41,22 @@ function startmenuPrivate.drawMenu()
             term.setCursorPos(1, index)
             term.clearLine()
         end
+
+        term.setCursorPos(1, 1)
+        term.setBackgroundColor(8192)
+        term.clearLine()
+        
+        term.setCursorPos(1, 1)
+        term.setTextColor(1)
+        term.write(startmenuPrivate.taskbar.getNameByUuid(startmenuPrivate.minimisedProgramUuid))
+
+        term.setCursorPos(startmenuPrivate.rootTermWidth - 1, 1)
+        term.setBackgroundColor(2048)
+        term.write("_")
+
+        term.setCursorPos(startmenuPrivate.rootTermWidth, 1)
+        term.setBackgroundColor(16384)
+        term.write("X")
     end
 
     local menuHight = startmenuPrivate.getMenuHight()
@@ -148,7 +163,6 @@ function startmenu.startBtnClick()
             startmenu.desktopOption = "desktop"
             startmenuPrivate.kernelEventHandler.kernelMethods.setCurrentRunningProgram(startmenuPrivate.minimisedProgramUuid)
             startmenuPrivate.minimisedProgramUuid = ""
-            startmenu.closeProgramBlock = true
             startmenuPrivate.drawStartmenu()
         elseif startmenuPrivate.Y == (startmenuPrivate.rootTermHeight - 2) and startmenuPrivate.X >= 2 and startmenuPrivate.X <= 9 and startmenu.desktopOption == "startmenu" then
             os.shutdown()
@@ -186,7 +200,6 @@ function startmenu.setProperties(event, button, X, Y, rootTermWidth, rootTermHei
     startmenuPrivate.programs = startmenuPrivate.kernelEventHandler.kernelData.listOfProgramsAndTasks.programs
     startmenuPrivate.programsList = startmenuPrivate.setProgramsList()
     startmenuPrivate.exitToDesktop = exitToDesktop
-    startmenu.closeProgramBlock = false
 end
 
 return startmenu

@@ -13,7 +13,7 @@ function desktopApplication.exitToDesktop()
 end
 
 function desktopApplication.closeProgram(event, button, X, Y)
-    if (event == "mouse_click" or event == "terminate") and desktopApplication.startmenu.closeProgramBlock == false then
+    if event == "mouse_click" or event == "terminate" then
         if (Y == 1 and X == rootTermWidth) or event == "terminate" then
             desktopApplication.taskbar.closeProgram(
                 desktopApplication.kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid()
@@ -24,7 +24,7 @@ function desktopApplication.closeProgram(event, button, X, Y)
 end
 
 function desktopApplication.minimiseProgram(event, button, X, Y)
-    if (event == "mouse_click" or event == "terminate") and desktopApplication.startmenu.closeProgramBlock == false then
+    if event == "mouse_click" or event == "terminate" then
         if (Y == 1 and X == (rootTermWidth - 1)) or event == "terminate" then
             desktopApplication.kernelEventHandler.kernelMethods.setCurrentRunningProgram("")
             desktopApplication.exitToDesktop()
