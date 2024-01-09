@@ -6,6 +6,7 @@ gframework.kernelEventHandler = require "/graphicalOS_system/apis/kernelEventHan
 gframeworkPrivate.backgroundColor = 1
 gframeworkPrivate.hasBlinkNotBeenSet = true
 
+gframeworkPrivate.term = {}
 gframework.term = {
     setBackgroundColor = function (colorNumber)
         gframeworkPrivate.backgroundColor = colorNumber
@@ -56,8 +57,194 @@ gframework.term = {
                 end
             end)
         end
+    end,
+
+    createScreenBuffer = function (currentTerm)
+        local buffer = {}
+
+        buffer.screenBufferPrivate = {
+            currentBuffer = {},
+            previousBuffer = {},
+
+            currentBlinkBuffer = {
+                isCursorBlinkSet = false,
+            },
+
+            previousBlinkBuffer = {
+                isCursorBlinkSet = false,
+            },
+        
+            currentTerm = currentTerm,
+            cursorPosX = 1,
+            cursorPosY = 1,
+            textColor = 1,
+            backgroundColor = 32768
+        }
+        buffer.screenBuffer = {
+            getSize = function ()
+                local height = #buffer.screenBufferPrivate.currentBuffer
+                local width = #buffer.screenBufferPrivate.currentBuffer[height]
+
+                return width, height
+            end,
+        
+            setCursorBlink = function (setCursorBlinkBool)
+                if type(setCursorBlinkBool) == "boolean" then
+                    buffer.screenBufferPrivate.currentBlinkBuffer.isCursorBlinkSet = setCursorBlinkBool
+                end
+            end,
+            
+            getCursorBlink = function ()
+                return buffer.screenBufferPrivate.currentBlinkBuffer.isCursorBlinkSet
+            end,
+        
+            clearLine = function ()
+                for indexPosX = 1, #buffer.screenBufferPrivate.currentBuffer[buffer.screenBufferPrivate.cursorPosY], 1 do
+                    buffer.screenBufferPrivate.currentBuffer[buffer.screenBufferPrivate.cursorPosY][indexPosX] = {
+                        textColor = buffer.screenBufferPrivate.textColor,
+                        backgroundColor = buffer.screenBufferPrivate.backgroundColor,
+                        char = " "
+                    }
+                end
+            end,
+        
+            clear = function ()
+                local xSize, ySize = buffer.screenBufferPrivate.currentTerm.getSize()
+
+                for indexPosY = 1, ySize, 1 do
+                    if buffer.screenBufferPrivate.currentBuffer[indexPosY] == nil then
+                        buffer.screenBufferPrivate.currentBuffer[indexPosY] = {}
+                    end
+
+                    if buffer.screenBufferPrivate.previousBuffer[indexPosY] == nil then
+                        buffer.screenBufferPrivate.previousBuffer[indexPosY] = {}
+                    end
+
+                    for indexPosX = 1, xSize, 1 do
+                        if buffer.screenBufferPrivate.previousBuffer[indexPosY][indexPosX] == nil then
+                            buffer.screenBufferPrivate.previousBuffer[indexPosY][indexPosX] = {
+                                textColor = 1,
+                                backgroundColor = 32768,
+                                char = " "
+                            }
+                        end
+
+                        if buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX] == nil then
+                            buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX] = {
+                                textColor = 1,
+                                backgroundColor = 32768,
+                                char = " "
+                            }
+                        else
+                            buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX].char = " "
+                            buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX].backgroundColor = buffer.screenBufferPrivate.backgroundColor
+                            buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX].textColor = buffer.screenBufferPrivate.textColor
+                        end
+                    end
+                end
+            end,
+        
+            setBackgroundColor = function (backgroundColor)
+                buffer.screenBufferPrivate.backgroundColor = backgroundColor
+            end,
+            
+            getBackgroundColor = function ()
+                return buffer.screenBufferPrivate.backgroundColor
+            end,
+            
+            setTextColor = function (textColorNum)
+                buffer.screenBufferPrivate.textColor = textColorNum
+            end,
+        
+            getTextColor = function ()
+                return buffer.screenBufferPrivate.textColor
+            end,
+            
+            setCursorPos = function (posX, posY)
+                buffer.screenBufferPrivate.cursorPosX = posX
+                buffer.screenBufferPrivate.cursorPosY = posY
+            end,
+            
+            getCursorPos = function ()
+                return buffer.screenBufferPrivate.cursorPosX, buffer.screenBufferPrivate.cursorPosY
+            end,
+            
+            write = function (writeStringToBuffer)
+                if writeStringToBuffer ~= "" then
+                    for indexPosX = buffer.screenBufferPrivate.cursorPosX, buffer.screenBufferPrivate.cursorPosX + string.len(writeStringToBuffer) - 1, 1 do
+                        buffer.screenBufferPrivate.currentBuffer[buffer.screenBufferPrivate.cursorPosY][indexPosX] = {
+                            textColor = buffer.screenBufferPrivate.textColor,
+                            backgroundColor = buffer.screenBufferPrivate.backgroundColor,
+                            char = string.sub(writeStringToBuffer, indexPosX - (buffer.screenBufferPrivate.cursorPosX - 1), indexPosX - (buffer.screenBufferPrivate.cursorPosX - 1))
+                        }
+                    end
+
+                    local width, height = buffer.screenBuffer.getSize()
+                    local newPosX = buffer.screenBufferPrivate.cursorPosX + string.len(writeStringToBuffer)
+
+                    if newPosX <= width then
+                        buffer.screenBufferPrivate.cursorPosX = newPosX
+                    end
+                end
+            end,
+            
+            draw = function ()
+                for indexPosY = 1, #buffer.screenBufferPrivate.currentBuffer, 1 do
+                    if buffer.screenBufferPrivate.previousBuffer[indexPosY] == nil then
+                        buffer.screenBufferPrivate.previousBuffer[indexPosY] = {}
+                    end
+
+                    for indexPosX = 1, #buffer.screenBufferPrivate.currentBuffer[indexPosY], 1 do
+                        if buffer.screenBufferPrivate.previousBuffer[indexPosY][indexPosX] == nil then
+                            buffer.screenBufferPrivate.previousBuffer[indexPosY][indexPosX] = {}
+                        end
+
+                        local drawToScreen = false
+
+                        if buffer.screenBufferPrivate.previousBuffer[indexPosY][indexPosX].textColor ~= buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX].textColor then
+                            drawToScreen = true
+                        end
+
+                        if buffer.screenBufferPrivate.previousBuffer[indexPosY][indexPosX].backgroundColor ~= buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX].backgroundColor or drawToScreen == true then
+                            drawToScreen = true
+                        end
+
+                        if buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX].char ~= buffer.screenBufferPrivate.previousBuffer[indexPosY][indexPosX].char then
+                            drawToScreen = true
+                        end
+
+                        if drawToScreen then
+                            buffer.screenBufferPrivate.currentTerm.setCursorPos(indexPosX, indexPosY)
+                            buffer.screenBufferPrivate.currentTerm.setTextColor(buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX].textColor)
+                            buffer.screenBufferPrivate.currentTerm.setBackgroundColor(buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX].backgroundColor)
+                            buffer.screenBufferPrivate.currentTerm.write(buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX].char)
+                        end
+
+                        buffer.screenBufferPrivate.previousBuffer[indexPosY][indexPosX] = {
+                            textColor = buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX].textColor,
+                            backgroundColor = buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX].backgroundColor,
+                            char = buffer.screenBufferPrivate.currentBuffer[indexPosY][indexPosX].char
+                        }
+                    end
+                end
+
+                if buffer.screenBufferPrivate.currentBlinkBuffer.isCursorBlinkSet == true then
+                    buffer.screenBufferPrivate.currentTerm.setCursorPos(buffer.screenBufferPrivate.cursorPosX, buffer.screenBufferPrivate.cursorPosY)
+                    buffer.screenBufferPrivate.currentTerm.setCursorBlink(buffer.screenBufferPrivate.currentBlinkBuffer.isCursorBlinkSet)
+                elseif buffer.screenBufferPrivate.currentBlinkBuffer.isCursorBlinkSet ~= buffer.screenBufferPrivate.previousBlinkBuffer.isCursorBlinkSet then
+                    buffer.screenBufferPrivate.currentTerm.setCursorBlink(false)
+                end
+
+                buffer.screenBufferPrivate.previousBlinkBuffer.isCursorBlinkSet = buffer.screenBufferPrivate.currentBlinkBuffer.isCursorBlinkSet
+            end
+        }
+        
+        buffer.screenBuffer.clear()
+
+        return buffer.screenBuffer
     end
 }
+gframework.term.screenBuffer = gframework.term.createScreenBuffer(term.current())
 
 gframework.tableContains = function (t_table, contains)
     local returnValue = false
