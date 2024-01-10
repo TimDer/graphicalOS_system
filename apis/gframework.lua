@@ -15,30 +15,28 @@ gframework.term = {
     setCursorBlink = function (bool)
         if gframeworkPrivate.hasBlinkNotBeenSet == true and bool == true then
             gframeworkPrivate.hasBlinkNotBeenSet = false
-            term.setCursorBlink(bool)
+            gframework.term.screenBuffer.setCursorBlink(bool)
         elseif bool == false then
             gframeworkPrivate.hasBlinkNotBeenSet = true
-            term.setCursorBlink(bool)
+            gframework.term.screenBuffer.setCursorBlink(bool)
         end
     end,
 
     termBackup = function ()
-        local currentPosX, currentPosY = term.getCursorPos()
+        local currentPosX, currentPosY = gframework.term.screenBuffer.getCursorPos()
     
         return {
-            backgroundColor = term.getBackgroundColor(),
-            textColor = term.getTextColor(),
+            backgroundColor = gframework.term.screenBuffer.getBackgroundColor(),
+            textColor = gframework.term.screenBuffer.getTextColor(),
             X = currentPosX,
-            Y = currentPosY,
-            term = term.current()
+            Y = currentPosY
         }
     end,
 
     termReset = function (backup)
-        term.setBackgroundColor(backup.backgroundColor)
-        term.setTextColor(backup.textColor)
-        term.setCursorPos(backup.X, backup.Y)
-        term.redirect(backup.term)
+        gframework.term.screenBuffer.setBackgroundColor(backup.backgroundColor)
+        gframework.term.screenBuffer.setTextColor(backup.textColor)
+        gframework.term.screenBuffer.setCursorPos(backup.X, backup.Y)
     end,
 
     termBackupReset = function (func)
@@ -301,17 +299,17 @@ gframework.createRadioButtonItem = function (radioButtonName, radioButtonPosX, r
     radioButtonItem.radioButtonPosY = radioButtonPosY
 
     radioButtonItem.draw = gframework.term.createDraw(function ()
-        term.setBackgroundColor(radioButtonLabelBackgroundColor)
-        term.setTextColor(radioButtonTextColor)
-        term.setCursorPos(radioButtonPosX + 2, radioButtonPosY)
-        term.write(radioButtonName)
+        gframework.term.screenBuffer.setBackgroundColor(radioButtonLabelBackgroundColor)
+        gframework.term.screenBuffer.setTextColor(radioButtonTextColor)
+        gframework.term.screenBuffer.setCursorPos(radioButtonPosX + 2, radioButtonPosY)
+        gframework.term.screenBuffer.write(radioButtonName)
 
-        term.setBackgroundColor(radioButtonBackgroundColor)
-        term.setCursorPos(radioButtonPosX, radioButtonPosY)
+        gframework.term.screenBuffer.setBackgroundColor(radioButtonBackgroundColor)
+        gframework.term.screenBuffer.setCursorPos(radioButtonPosX, radioButtonPosY)
         if radioButtonItem.checked == true then
-            term.write("X")
+            gframework.term.screenBuffer.write("X")
         else
-            term.write(" ")
+            gframework.term.screenBuffer.write(" ")
         end
     end)
 
@@ -351,26 +349,26 @@ gframework.createItemGroup = function ()
         miniWindowItem.onWindowClose = function () end
 
         miniWindowItem.draw = gframework.term.createDraw(function ()
-            term.setBackgroundColor(miniWindowBackgroundColor)
+            gframework.term.screenBuffer.setBackgroundColor(miniWindowBackgroundColor)
             for indexPosY = miniWindowPosY, miniWindowPosY + miniWindowHeight, 1 do
                 for indexPosX = miniWindowPosX, miniWindowPosX + miniWindowWidth - 1, 1 do
-                    term.setCursorPos(indexPosX, indexPosY)
-                    term.write(" ")
+                    gframework.term.screenBuffer.setCursorPos(indexPosX, indexPosY)
+                    gframework.term.screenBuffer.write(" ")
                 end
             end
             
-            term.setBackgroundColor(8192)
+            gframework.term.screenBuffer.setBackgroundColor(8192)
             for indexPosX = miniWindowPosX, miniWindowPosX + miniWindowWidth - 1, 1 do
-                term.setCursorPos(indexPosX, miniWindowPosY)
-                term.write(" ")
+                gframework.term.screenBuffer.setCursorPos(indexPosX, miniWindowPosY)
+                gframework.term.screenBuffer.write(" ")
             end
-            term.setBackgroundColor(16384)
-            term.setCursorPos(miniWindowPosX + miniWindowWidth - 1, miniWindowPosY)
-            term.write("X")
+            gframework.term.screenBuffer.setBackgroundColor(16384)
+            gframework.term.screenBuffer.setCursorPos(miniWindowPosX + miniWindowWidth - 1, miniWindowPosY)
+            gframework.term.screenBuffer.write("X")
 
-            term.setBackgroundColor(8192)
-            term.setCursorPos(miniWindowPosX, miniWindowPosY)
-            term.write(string.sub(miniWindowName, 1, miniWindowPosX + miniWindowWidth - 6))
+            gframework.term.screenBuffer.setBackgroundColor(8192)
+            gframework.term.screenBuffer.setCursorPos(miniWindowPosX, miniWindowPosY)
+            gframework.term.screenBuffer.write(string.sub(miniWindowName, 1, miniWindowPosX + miniWindowWidth - 6))
         end)
 
         miniWindowItem.action = gframework.action.createAction(function (events)
@@ -396,7 +394,7 @@ gframework.createItemGroup = function ()
         local fileBrowserBoxItem = {}
         local fileBrowserBoxReturn = {}
 
-        local xSize, ySize = term.getSize()
+        local xSize, ySize = gframework.term.screenBuffer.getSize()
 
         fileBrowserBoxItem.fileBrowserBoxPosX = fileBrowserBoxPosX
         fileBrowserBoxItem.fileBrowserBoxPosY = fileBrowserBoxPosY
@@ -448,32 +446,32 @@ gframework.createItemGroup = function ()
         fileBrowserBoxItem.bufferLoadTheItemsInCurrentPath()
 
         fileBrowserBoxItem.draw = gframework.term.createDraw(function ()
-            term.setBackgroundColor(256)
+            gframework.term.screenBuffer.setBackgroundColor(256)
 
             for indexHeight = fileBrowserBoxItem.fileBrowserBoxPosY, fileBrowserBoxItem.fileBrowserBoxPosY + fileBrowserBoxItem.fileBrowserBoxHeight - 1, 1 do
                 for indexWidth = fileBrowserBoxItem.fileBrowserBoxPosX, fileBrowserBoxItem.fileBrowserBoxPosX + fileBrowserBoxItem.fileBrowserBoxWidth - 1, 1 do
-                    term.setCursorPos(indexWidth, indexHeight)
-                    term.write(" ")
+                    gframework.term.screenBuffer.setCursorPos(indexWidth, indexHeight)
+                    gframework.term.screenBuffer.write(" ")
                 end
 
-                term.setBackgroundColor(1)
+                gframework.term.screenBuffer.setBackgroundColor(1)
             end
 
             local pathPlusPosX = 0
             if fileBrowserBoxItem.isBackBtnEnabled == true then
                 pathPlusPosX = 2
-                term.setBackgroundColor(128)
-                term.setCursorPos(fileBrowserBoxItem.fileBrowserBoxPosX, fileBrowserBoxItem.fileBrowserBoxPosY)
-                term.write("<-")
+                gframework.term.screenBuffer.setBackgroundColor(128)
+                gframework.term.screenBuffer.setCursorPos(fileBrowserBoxItem.fileBrowserBoxPosX, fileBrowserBoxItem.fileBrowserBoxPosY)
+                gframework.term.screenBuffer.write("<-")
             end
 
-            term.setBackgroundColor(256)
-            term.setCursorPos(fileBrowserBoxItem.fileBrowserBoxPosX + pathPlusPosX, fileBrowserBoxItem.fileBrowserBoxPosY)
-            term.write(string.sub(fileBrowserBoxItem.currentPath, 1, fileBrowserBoxItem.sizeX - 2))
+            gframework.term.screenBuffer.setBackgroundColor(256)
+            gframework.term.screenBuffer.setCursorPos(fileBrowserBoxItem.fileBrowserBoxPosX + pathPlusPosX, fileBrowserBoxItem.fileBrowserBoxPosY)
+            gframework.term.screenBuffer.write(string.sub(fileBrowserBoxItem.currentPath, 1, fileBrowserBoxItem.sizeX - 2))
 
             if fileBrowserBoxItem.directoryTableCurrentTopKey ~= 0 then
-                term.setBackgroundColor(1)
-                term.setTextColor(32768)
+                gframework.term.screenBuffer.setBackgroundColor(1)
+                gframework.term.screenBuffer.setTextColor(32768)
                 
                 for fileIndex = fileBrowserBoxItem.directoryTableCurrentTopKey, fileBrowserBoxItem.directoryTableCurrentTopKey + fileBrowserBoxItem.fileBrowserBoxHeight - 2, 1 do
                     if fileBrowserBoxItem.directoryTable[fileIndex] == nil then
@@ -482,19 +480,19 @@ gframework.createItemGroup = function ()
 
                     if fileBrowserBoxItem.selectedFileOrFolder == fileIndex then
                         for selectedIndexPosX = fileBrowserBoxItem.fileBrowserBoxPosX, fileBrowserBoxItem.fileBrowserBoxPosX + fileBrowserBoxItem.fileBrowserBoxWidth - 1, 1 do
-                            term.setCursorPos(selectedIndexPosX, fileBrowserBoxItem.fileBrowserBoxPosY + fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1))
-                            term.setBackgroundColor(2048)
-                            term.write(" ")
+                            gframework.term.screenBuffer.setCursorPos(selectedIndexPosX, fileBrowserBoxItem.fileBrowserBoxPosY + fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1))
+                            gframework.term.screenBuffer.setBackgroundColor(2048)
+                            gframework.term.screenBuffer.write(" ")
                         end
                     else
-                        term.setBackgroundColor(1)
+                        gframework.term.screenBuffer.setBackgroundColor(1)
                     end
 
-                    term.setCursorPos(fileBrowserBoxItem.fileBrowserBoxPosX, fileBrowserBoxItem.fileBrowserBoxPosY + fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1))
+                    gframework.term.screenBuffer.setCursorPos(fileBrowserBoxItem.fileBrowserBoxPosX, fileBrowserBoxItem.fileBrowserBoxPosY + fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1))
                     if fileBrowserBoxItem.directoryTable[fileIndex].type == "folder" then
-                        term.write("[=] " .. fileBrowserBoxItem.directoryTable[fileIndex].name)
+                        gframework.term.screenBuffer.write("[=] " .. fileBrowserBoxItem.directoryTable[fileIndex].name)
                     else
-                        term.write("[+] " .. fileBrowserBoxItem.directoryTable[fileIndex].name)
+                        gframework.term.screenBuffer.write("[+] " .. fileBrowserBoxItem.directoryTable[fileIndex].name)
                     end
                 end
             end
@@ -510,6 +508,7 @@ gframework.createItemGroup = function ()
 
                 if redrawFileBox then
                     fileBrowserBoxItem.draw()
+                    gframework.term.screenBuffer.draw()
                 end
             end
         end
@@ -565,9 +564,11 @@ gframework.createItemGroup = function ()
                     if events[2] == -1 and fileBrowserBoxItem.directoryTableCurrentTopKey - 1 >= 1 then
                         fileBrowserBoxItem.directoryTableCurrentTopKey = fileBrowserBoxItem.directoryTableCurrentTopKey - 1
                         fileBrowserBoxItem.draw()
+                        gframework.term.screenBuffer.draw()
                     elseif events[2] == 1 and fileBrowserBoxItem.directoryTableCurrentTopKey + 1 <= #fileBrowserBoxItem.directoryTable - fileBrowserBoxItem.fileBrowserBoxHeight + 2 then
                         fileBrowserBoxItem.directoryTableCurrentTopKey = fileBrowserBoxItem.directoryTableCurrentTopKey + 1
                         fileBrowserBoxItem.draw()
+                        gframework.term.screenBuffer.draw()
                     end
                 end
             elseif events[1] == "mouse_click" then
@@ -597,6 +598,7 @@ gframework.createItemGroup = function ()
 
             fileBrowserBoxItem.bufferLoadTheItemsInCurrentPath()
             fileBrowserBoxItem.draw()
+            gframework.term.screenBuffer.draw()
         end
 
         fileBrowserBoxReturn.setBoubleClickFunc = function (func)
@@ -618,6 +620,7 @@ gframework.createItemGroup = function ()
             fileBrowserBoxItem.fileBrowserBoxHeight = newHeight
 
             fileBrowserBoxItem.draw()
+            gframework.term.screenBuffer.draw()
         end
 
         fileBrowserBoxReturn.setBackBtnAction = function (func)
@@ -644,18 +647,18 @@ gframework.createItemGroup = function ()
         button.marginEndY = button.Y + margin
 
         button.draw = gframework.term.createDraw(function ()
-            term.setCursorPos(button.startX, button.Y)
-            term.setBackgroundColor(backgroundColor)
-            term.setTextColor(textColor)
+            gframework.term.screenBuffer.setCursorPos(button.startX, button.Y)
+            gframework.term.screenBuffer.setBackgroundColor(backgroundColor)
+            gframework.term.screenBuffer.setTextColor(textColor)
             for indexLineY = button.marginStartY, button.marginEndY, 1 do
                 for indexLineX = button.marginStartX, button.marginEndX, 1 do
-                    term.setCursorPos(indexLineX, indexLineY)
-                    term.write(" ")
+                    gframework.term.screenBuffer.setCursorPos(indexLineX, indexLineY)
+                    gframework.term.screenBuffer.write(" ")
                 end
             end
             
-            term.setCursorPos(button.startX, button.Y)
-            term.write(nameString)
+            gframework.term.screenBuffer.setCursorPos(button.startX, button.Y)
+            gframework.term.screenBuffer.write(nameString)
         end)
 
         button.action = gframework.action.createAction(function (events)
@@ -677,12 +680,12 @@ gframework.createItemGroup = function ()
 
         boxItem.draw = gframework.term.createDraw(function ()
             if boxItem.boxDisplayAllowed == true then
-                term.setBackgroundColor(boxColor)
+                gframework.term.screenBuffer.setBackgroundColor(boxColor)
 
                 for indexPosY = boxPosY, boxPosY + boxHight - 1, 1 do
                     for indexPosX = boxPosX, boxPosX + boxWidth - 1, 1 do
-                        term.setCursorPos(indexPosX, indexPosY)
-                        term.write(" ")
+                        gframework.term.screenBuffer.setCursorPos(indexPosX, indexPosY)
+                        gframework.term.screenBuffer.write(" ")
                     end
                 end
             end
@@ -751,6 +754,7 @@ gframework.createItemGroup = function ()
 
             if newChecked.radioButtonHasChanged then
                 radioButtonItem.draw()
+                gframework.term.screenBuffer.draw()
                 radioButtonItem.buttonsList[newChecked.radioButtonChangedToKey].action()
             end
         end)
@@ -764,17 +768,17 @@ gframework.createItemGroup = function ()
         checkBoxItem.checked = checked
 
         checkBoxItem.draw = gframework.term.createDraw(function ()
-            term.setBackgroundColor(checkBoxLabelBackgroundColor)
-            term.setTextColor(checkBoxTextColor)
-            term.setCursorPos(checkBoxPosX + 2, checkBoxPosY)
-            term.write(checkBoxName)
+            gframework.term.screenBuffer.setBackgroundColor(checkBoxLabelBackgroundColor)
+            gframework.term.screenBuffer.setTextColor(checkBoxTextColor)
+            gframework.term.screenBuffer.setCursorPos(checkBoxPosX + 2, checkBoxPosY)
+            gframework.term.screenBuffer.write(checkBoxName)
 
-            term.setBackgroundColor(checkBoxBackgroundColor)
-            term.setCursorPos(checkBoxPosX, checkBoxPosY)
+            gframework.term.screenBuffer.setBackgroundColor(checkBoxBackgroundColor)
+            gframework.term.screenBuffer.setCursorPos(checkBoxPosX, checkBoxPosY)
             if checkBoxItem.checked == true then
-                term.write("#")
+                gframework.term.screenBuffer.write("#")
             else
-                term.write(" ")
+                gframework.term.screenBuffer.write(" ")
             end
         end)
 
@@ -784,9 +788,11 @@ gframework.createItemGroup = function ()
                     if checkBoxItem.checked == true then
                         checkBoxItem.checked = false
                         checkBoxItem.draw()
+                        gframework.term.screenBuffer.draw()
                     else
                         checkBoxItem.checked = true
                         checkBoxItem.draw()
+                        gframework.term.screenBuffer.draw()
                     end
 
                     actionFunc(checkBoxItem.checked)
@@ -806,10 +812,10 @@ gframework.createItemGroup = function ()
 
         labelItem.draw = gframework.term.createDraw(function ()
             if labelItem.labelDisplayAllowed == true then
-                term.setBackgroundColor(labelBackgroundColor)
-                term.setTextColor(labelTextColor)
-                term.setCursorPos(labelPosX, labelPosY)
-                term.write(labelItem.labelName)
+                gframework.term.screenBuffer.setBackgroundColor(labelBackgroundColor)
+                gframework.term.screenBuffer.setTextColor(labelTextColor)
+                gframework.term.screenBuffer.setCursorPos(labelPosX, labelPosY)
+                gframework.term.screenBuffer.write(labelItem.labelName)
             end
         end)
 
@@ -860,17 +866,17 @@ gframework.createItemGroup = function ()
         end
 
         readBarItem.draw = gframework.term.createDraw(function ()
-            term.setCursorPos(readBarPosX, readBarPosY)
-            term.setBackgroundColor(readBarBackgroundColor)
-            term.setTextColor(readBarTextColor)
+            gframework.term.screenBuffer.setCursorPos(readBarPosX, readBarPosY)
+            gframework.term.screenBuffer.setBackgroundColor(readBarBackgroundColor)
+            gframework.term.screenBuffer.setTextColor(readBarTextColor)
             for i = readBarPosX, readBarPosX + readBarWidth - 1, 1 do
-                term.setCursorPos(i, readBarPosY)
-                term.write(" ")
+                gframework.term.screenBuffer.setCursorPos(i, readBarPosY)
+                gframework.term.screenBuffer.write(" ")
             end
 
             local startNum = readBarItem.getStartReadBarNumber()
-            term.setCursorPos(readBarPosX, readBarPosY)
-            term.write( string.sub(readBarItem.readString, startNum, string.len(readBarItem.readString)) )
+            gframework.term.screenBuffer.setCursorPos(readBarPosX, readBarPosY)
+            gframework.term.screenBuffer.write( string.sub(readBarItem.readString, startNum, string.len(readBarItem.readString)) )
         end)
 
         readBarItem.openOrCloseReadBar = function (events)
@@ -882,8 +888,8 @@ gframework.createItemGroup = function ()
                         readBarItem.oldTermData = gframework.term.termBackup()
                     end
                     readBarItem.isReadBarOpen = true
-                    term.setTextColor(readBarTextColor)
-                    term.setCursorPos(readBarPosX + readBarItem.getCursorBlinkPos(), readBarPosY)
+                    gframework.term.screenBuffer.setTextColor(readBarTextColor)
+                    gframework.term.screenBuffer.setCursorPos(readBarPosX + readBarItem.getCursorBlinkPos(), readBarPosY)
                     gframework.term.setCursorBlink(true)
                 elseif ifClickInReadBar == false then
                     if readBarItem.isReadBarOpen == true then
@@ -917,7 +923,7 @@ gframework.createItemGroup = function ()
                 end
                 
                 readBarItem.draw()
-                term.setCursorPos(readBarPosX + readBarItem.getCursorBlinkPos(), readBarPosY)
+                gframework.term.screenBuffer.setCursorPos(readBarPosX + readBarItem.getCursorBlinkPos(), readBarPosY)
             end
         end
 
@@ -925,6 +931,7 @@ gframework.createItemGroup = function ()
             if gframeworkPrivate.hasBlinkNotBeenSet == true then
                 readBarItem.openOrCloseReadBar(events)
                 readBarItem.typeKeysIntoTheInput(events)
+                gframework.term.screenBuffer.draw()
             else
                 readBarItem.isReadBarOpen = false
             end
@@ -997,6 +1004,7 @@ gframework.topBar = {
                 if type(bool) == "boolean" then
                     topBarMenu.allowDisplay = bool
                     gframework.topBar.draw()
+                    gframework.term.screenBuffer.draw()
                 end
             end
         }
@@ -1021,17 +1029,17 @@ gframework.topBar = {
 
     draw = gframework.term.createDraw(function ()
         if next(gframework.topBar.menus) ~= nil then
-            term.setCursorPos(1, 1)
-            term.setBackgroundColor(gframework.topBar.settings.backgroundColor)
-            term.setTextColor(gframework.topBar.settings.textColor)
-            term.clearLine()
+            gframework.term.screenBuffer.setCursorPos(1, 1)
+            gframework.term.screenBuffer.setBackgroundColor(gframework.topBar.settings.backgroundColor)
+            gframework.term.screenBuffer.setTextColor(gframework.topBar.settings.textColor)
+            gframework.term.screenBuffer.clearLine()
         
             if next(gframework.topBar.menus) ~= nil then
                 local titlePosX = 2
                 for menuKey, menuValue in pairs(gframework.topBar.menus) do
                     if type(menuValue.name) == "string" and menuValue.allowDisplay == true then
-                        term.setCursorPos(titlePosX, 1)
-                        term.write(menuValue.name)
+                        gframework.term.screenBuffer.setCursorPos(titlePosX, 1)
+                        gframework.term.screenBuffer.write(menuValue.name)
         
                         if menuKey == gframework.topBar.openMenuId then
                             local longestString = string.len(menuValue.name)
@@ -1043,12 +1051,12 @@ gframework.topBar = {
 
                             for itemKey, itemValue in pairs(gframework.topBar.menus[menuKey].items) do
                                 for menuBackgroundPosX = titlePosX - 1, titlePosX + longestString, 1 do
-                                    term.setCursorPos(menuBackgroundPosX, itemKey + 1)
-                                    term.write(" ")
+                                    gframework.term.screenBuffer.setCursorPos(menuBackgroundPosX, itemKey + 1)
+                                    gframework.term.screenBuffer.write(" ")
                                 end
 
-                                term.setCursorPos(titlePosX, itemKey + 1)
-                                term.write(itemValue.name)
+                                gframework.term.screenBuffer.setCursorPos(titlePosX, itemKey + 1)
+                                gframework.term.screenBuffer.write(itemValue.name)
                             end
                         end
 
@@ -1188,9 +1196,9 @@ gframework.draw = function (...)
     local itemGroups = {...}
 
     gframework.term.termBackupReset(function ()
-        term.setCursorPos(1, 1)
-        term.setBackgroundColor(gframeworkPrivate.backgroundColor)
-        term.clear()
+        gframework.term.screenBuffer.setCursorPos(1, 1)
+        gframework.term.screenBuffer.setBackgroundColor(gframeworkPrivate.backgroundColor)
+        gframework.term.screenBuffer.clear()
     end)
 
     if next(itemGroups) == nil and next(gframeworkPrivate.collectedGroupItems) ~= nil then
@@ -1204,6 +1212,8 @@ gframework.draw = function (...)
     end
 
     gframework.topBar.draw()
+
+    gframework.term.screenBuffer.draw()
 end
 
 gframework.run = function (...)
