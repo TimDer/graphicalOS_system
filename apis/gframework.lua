@@ -347,6 +347,7 @@ gframework.createItemGroup = function ()
         local miniWindowReturn = {}
 
         miniWindowItem.onWindowClose = function () end
+        miniWindowItem.onWindowOpen = function () end
 
         miniWindowItem.draw = gframework.term.createDraw(function ()
             gframework.term.screenBuffer.setBackgroundColor(miniWindowBackgroundColor)
@@ -374,8 +375,7 @@ gframework.createItemGroup = function ()
         miniWindowItem.action = gframework.action.createAction(function (events)
             if events[1] == "mouse_click" then
                 if events[3] == miniWindowPosX + miniWindowWidth - 1 and events[4] == miniWindowPosY then
-                    itemGroup.excludeFromExecution(true)
-                    miniWindowItem.onWindowClose()
+                    miniWindowReturn.closeWindow()
                 end
             end
         end)
@@ -384,6 +384,22 @@ gframework.createItemGroup = function ()
             if type(func) == "function" then
                 miniWindowItem.onWindowClose = func
             end
+        end
+
+        miniWindowReturn.setOnWindowOpen = function (func)
+            if type(func) == "function" then
+                miniWindowItem.onWindowOpen = func
+            end
+        end
+
+        miniWindowReturn.closeWindow = function ()
+            itemGroup.excludeFromExecution(true)
+            miniWindowItem.onWindowClose()
+        end
+
+        miniWindowReturn.openWindow = function ()
+            itemGroup.excludeFromExecution(false)
+            miniWindowItem.onWindowOpen()
         end
 
         table.insert(itemGroup.items, miniWindowItem)
