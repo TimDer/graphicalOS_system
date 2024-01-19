@@ -510,7 +510,20 @@ gframework.createItemGroup = function ()
             end
         end)
         fileBrowserBoxItem.unselectItem = function (events)
-            if (events[4] >= fileBrowserBoxItem.fileBrowserBoxPosY + 1 and events[4] <= fileBrowserBoxItem.fileBrowserBoxPosY + fileBrowserBoxItem.fileBrowserBoxHeight - 1) == false then
+            local unselectItemPos = (
+                (
+                    events[4] >= fileBrowserBoxItem.fileBrowserBoxPosY + 1 and
+                    events[4] <= fileBrowserBoxItem.fileBrowserBoxPosY + fileBrowserBoxItem.fileBrowserBoxHeight - 1
+                ) == false or
+                (
+                    events[3] >= fileBrowserBoxItem.fileBrowserBoxPosX + fileBrowserBoxItem.fileBrowserBoxWidth or
+                    events[4] >= fileBrowserBoxItem.fileBrowserBoxPosY + fileBrowserBoxItem.fileBrowserBoxHeight or
+                    events[3] <= fileBrowserBoxItem.fileBrowserBoxPosX - 1 or
+                    events[4] <= fileBrowserBoxItem.fileBrowserBoxPosY - 1
+                )
+            )
+
+            if unselectItemPos then
                 local redrawFileBox = false
                 if fileBrowserBoxItem.selectedFileOrFolder >= 1 then
                     redrawFileBox = true
