@@ -410,16 +410,12 @@ gframework.createItemGroup = function ()
         local fileBrowserBoxItem = {}
         local fileBrowserBoxReturn = {}
 
-        local xSize, ySize = gframework.term.screenBuffer.getSize()
-
         fileBrowserBoxItem.fileBrowserBoxPosX = fileBrowserBoxPosX
         fileBrowserBoxItem.fileBrowserBoxPosY = fileBrowserBoxPosY
         fileBrowserBoxItem.fileBrowserBoxWidth = fileBrowserBoxWidth
         fileBrowserBoxItem.fileBrowserBoxHeight = fileBrowserBoxHeight
 
         fileBrowserBoxItem.currentPath = fileBrowserBoxPath
-        fileBrowserBoxItem.sizeX = xSize
-        fileBrowserBoxItem.sizeY = ySize
         fileBrowserBoxItem.directoryTable = {}
         fileBrowserBoxItem.directoryTableCurrentTopKey = 0
         fileBrowserBoxItem.selectedFileOrFolder = 0
@@ -483,7 +479,7 @@ gframework.createItemGroup = function ()
 
             gframework.term.screenBuffer.setBackgroundColor(256)
             gframework.term.screenBuffer.setCursorPos(fileBrowserBoxItem.fileBrowserBoxPosX + pathPlusPosX, fileBrowserBoxItem.fileBrowserBoxPosY)
-            gframework.term.screenBuffer.write(string.sub(fileBrowserBoxItem.currentPath, 1, fileBrowserBoxItem.sizeX - 2))
+            gframework.term.screenBuffer.write(string.sub(fileBrowserBoxItem.currentPath, 1, fileBrowserBoxItem.fileBrowserBoxWidth - 2))
 
             if fileBrowserBoxItem.directoryTableCurrentTopKey ~= 0 then
                 gframework.term.screenBuffer.setBackgroundColor(1)
@@ -506,9 +502,9 @@ gframework.createItemGroup = function ()
 
                     gframework.term.screenBuffer.setCursorPos(fileBrowserBoxItem.fileBrowserBoxPosX, fileBrowserBoxItem.fileBrowserBoxPosY + fileIndex - (fileBrowserBoxItem.directoryTableCurrentTopKey - 1))
                     if fileBrowserBoxItem.directoryTable[fileIndex].type == "folder" then
-                        gframework.term.screenBuffer.write("[=] " .. fileBrowserBoxItem.directoryTable[fileIndex].name)
+                        gframework.term.screenBuffer.write("[=] " .. string.sub(fileBrowserBoxItem.directoryTable[fileIndex].name, 1, fileBrowserBoxItem.fileBrowserBoxWidth - 4))
                     else
-                        gframework.term.screenBuffer.write("[+] " .. fileBrowserBoxItem.directoryTable[fileIndex].name)
+                        gframework.term.screenBuffer.write("[+] " .. string.sub(fileBrowserBoxItem.directoryTable[fileIndex].name, 1, fileBrowserBoxItem.fileBrowserBoxWidth - 4))
                     end
                 end
             end
