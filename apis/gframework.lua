@@ -425,6 +425,7 @@ gframework.createItemGroup = function ()
         fileBrowserBoxItem.fileBrowserBoxOnFileChange = function (file, isAFolder) end
         fileBrowserBoxItem.fileBrowserBoxDoubleClick = function (file, isAFolder) end
         fileBrowserBoxItem.fileBrowserBoxOnBackBtnClick = function (file, isAFolder) end
+        fileBrowserBoxItem.onUnselectItem = function () end
 
         fileBrowserBoxItem.bufferLoadTheItemsInCurrentPath = function ()
             local filesAndFoldersInDirectory = fs.list(fileBrowserBoxItem.currentPath)
@@ -534,6 +535,7 @@ gframework.createItemGroup = function ()
                 if redrawFileBox then
                     fileBrowserBoxItem.draw()
                     gframework.term.screenBuffer.draw()
+                    fileBrowserBoxItem.onUnselectItem()
                 end
             end
         end
@@ -651,6 +653,12 @@ gframework.createItemGroup = function ()
         fileBrowserBoxReturn.setBackBtnAction = function (func)
             if type(func) == "function" then
                 fileBrowserBoxItem.fileBrowserBoxOnBackBtnClick = func
+            end
+        end
+
+        fileBrowserBoxReturn.setOnUnselectItem = function (func)
+            if type(func) == "function" then
+                fileBrowserBoxItem.onUnselectItem = func
             end
         end
 
