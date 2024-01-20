@@ -11,6 +11,7 @@ graphicalOs.stopTheOs.getCurrentTerm(term.current())
 
 -- Start the desktop ENV
 graphicalOs.kernel.addProgramToList("Shell", "/graphicalOS_system/programs/shell/main.lua", false)
+graphicalOs.kernel.addProgramToList("Files", "/graphicalOS_system/programs/files.lua", true)
 graphicalOs.kernel.AddTask("/graphicalOS_system/programs/Desktop/main.lua", true)
 graphicalOs.kernel.runKernel()
 
