@@ -16,4 +16,4 @@ graphicalOs.kernel.AddTask("/graphicalOS_system/programs/Desktop/main.lua", true
 graphicalOs.kernel.runKernel()
 
 -- End of the OS, clearing screen here
---graphicalOs.stopTheOs.stopTheOs()
+graphicalOs.stopTheOs.stopTheOs()
