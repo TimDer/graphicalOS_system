@@ -156,7 +156,8 @@ files.deleteFileOrFolderMiniWindow = function ()
 
     files.fileOrFolderToBeDeleted = files.settings.deleteFileOrFolderItemGroup.createLabel("File", 17, 8, 128, 1)
 
-    files.settings.deleteFileOrFolderItemGroup.createButton("Delete", 17, 10, 0, 16384, 1, function ()
+    local deleteFileOrFolder = files.settings.deleteFileOrFolderItemGroup.createButton("Delete", 17, 10, 0, 16384, 1)
+    deleteFileOrFolder.onClick(function ()
         fs.delete(files.currentDirectory .. "/" .. files.selectedFile.fileName)
         files.deleteFileOrFolderWindow.closeWindow()
     end)

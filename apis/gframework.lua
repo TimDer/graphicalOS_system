@@ -666,23 +666,14 @@ gframework.createItemGroup = function ()
         return fileBrowserBoxReturn
     end
     
-    itemGroup.createButton = function (nameString, X, Y, margin, backgroundColor, textColor, actionFunc)
+    itemGroup.createButton = function (nameString, X, Y, margin, backgroundColor, textColor)
         local button = {}
+        local buttonReturn = {}
         local buttonPrivate = {}
-
-        button.startX = X
-        button.Y = Y
-        button.endX = X + string.len(nameString) - 1
-
-        button.marginStartX = button.startX - margin
-        button.marginStartY = button.Y - margin
-        button.marginEndX = button.endX + margin
-        button.marginEndY = button.Y + margin
-
         button.draw = gframework.term.createDraw(function ()
             gframework.term.screenBuffer.setCursorPos(button.startX, button.Y)
-            gframework.term.screenBuffer.setBackgroundColor(backgroundColor)
-            gframework.term.screenBuffer.setTextColor(textColor)
+            gframework.term.screenBuffer.setBackgroundColor(button.backgroundColor)
+            gframework.term.screenBuffer.setTextColor(button.textColor)
             for indexLineY = button.marginStartY, button.marginEndY, 1 do
                 for indexLineX = button.marginStartX, button.marginEndX, 1 do
                     gframework.term.screenBuffer.setCursorPos(indexLineX, indexLineY)
@@ -691,18 +682,54 @@ gframework.createItemGroup = function ()
             end
             
             gframework.term.screenBuffer.setCursorPos(button.startX, button.Y)
-            gframework.term.screenBuffer.write(nameString)
+            gframework.term.screenBuffer.write(button.btnName)
         end)
 
         button.action = gframework.action.createAction(function (events)
             if events[1] == "mouse_click" then
                 if events[3] >= button.marginStartX and events[3] <= button.marginEndX and events[4] >= button.marginStartY and events[4] <= button.marginEndY then
-                    actionFunc()
+                    button.onClickFunc()
                 end
             end
         end)
+        
+        button.btnName = nameString
+
+        buttonReturn.resetBtnProperties = function (PosX, PosY, btnMargin)
+            button.startX = PosX
+            button.Y = PosY
+            button.endX = PosX + string.len(button.btnName) - 1
+
+            button.btnMargin = btnMargin
+            button.marginStartX = button.startX - btnMargin
+            button.marginStartY = button.Y - btnMargin
+            button.marginEndX = button.endX + btnMargin
+            button.marginEndY = button.Y + btnMargin
+        end
+        buttonReturn.resetBtnProperties(X, Y, margin)
+
+        buttonReturn.resetColors = function (backgrColor, txtColor)
+            button.backgroundColor = backgrColor
+            button.textColor = txtColor
+        end
+        buttonReturn.resetColors(backgroundColor, textColor)
+
+        button.onClickFunc = function () end
+        buttonReturn.onClick = function (func)
+            if type(func) == "function" then
+                button.onClickFunc = func
+            end
+        end
+
+        buttonReturn.resetBtnName = function (btnName)
+            button.btnName = btnName
+
+            buttonReturn.resetBtnProperties(button.startX, button.Y, button.btnMargin)
+        end
+        buttonReturn.resetBtnName(nameString)
 
         table.insert(itemGroup.items, button)
+        return buttonReturn
     end
 
     itemGroup.createBox = function (boxPosX, boxPosY, boxColor, boxWidth, boxHight)
