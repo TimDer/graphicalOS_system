@@ -1,4 +1,5 @@
 local files = {}
+local windowWidth, windowHeight = term.getSize()
 
 files.gframework = require "/graphicalOS_system/apis/gframework"
 
@@ -59,12 +60,12 @@ files.moveFile = {
 }
 
 files.displayMessage = function (messageString)
-    files.mainFileBrowser.resizeFileBrowser(1, 3, 51, 15)
+    files.mainFileBrowser.resizeFileBrowser(1, 3, windowWidth, windowHeight - 2)
     files.messageBox.setDisplayAllowed(true)
     files.fileManagerMessage.setDisplayAllowed(true)
     files.fileManagerMessage.setLabelName(messageString)
     files.gframework.timer.addTimer(2, function ()
-        files.mainFileBrowser.resizeFileBrowser(1, 2, 51, 16)
+        files.mainFileBrowser.resizeFileBrowser(1, 2, windowWidth, windowHeight - 1)
         files.messageBox.setDisplayAllowed(false)
         files.fileManagerMessage.setDisplayAllowed(false)
         files.fileManagerMessage.setLabelName("")
@@ -288,8 +289,7 @@ files.fileBrowser = function ()
         files.mainFileBrowser.changeDirectory(pathToNewDirecotry)
     end
 
-    local fileBrowserWidth, fileBrowserHeight = term.getSize()
-    files.mainFileBrowser = files.settings.mainItemGroup.createFileBrowserBox(files.currentDirectory, 1, 2, fileBrowserWidth, fileBrowserHeight - 1, true)
+    files.mainFileBrowser = files.settings.mainItemGroup.createFileBrowserBox(files.currentDirectory, 1, 2, windowWidth, windowHeight - 1, true)
     files.mainFileBrowser.setOnFileChangeFunc(function (file, isAFolder)
         files.selectedFile.filePath = file.path
         files.selectedFile.fileName = file.fileOrFolder
