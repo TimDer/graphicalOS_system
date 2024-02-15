@@ -288,7 +288,8 @@ files.fileBrowser = function ()
         files.mainFileBrowser.changeDirectory(pathToNewDirecotry)
     end
 
-    files.mainFileBrowser = files.settings.mainItemGroup.createFileBrowserBox(files.currentDirectory, 1, 2, 51, 16, true)
+    local fileBrowserWidth, fileBrowserHeight = term.getSize()
+    files.mainFileBrowser = files.settings.mainItemGroup.createFileBrowserBox(files.currentDirectory, 1, 2, fileBrowserWidth, fileBrowserHeight - 1, true)
     files.mainFileBrowser.setOnFileChangeFunc(function (file, isAFolder)
         files.selectedFile.filePath = file.path
         files.selectedFile.fileName = file.fileOrFolder
