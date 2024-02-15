@@ -123,6 +123,7 @@ end
 
 function taskbar.startProgram(programName, programPath, useKernelEvents)
     taskbarPrivate.kernelEventHandler.kernelMethods.AddProgram(
+        programName,
         programPath,
         useKernelEvents,
         taskbarPrivate.kernelEventHandler.kernelMethods.createWindow(
@@ -243,8 +244,12 @@ function taskbar.selectProgramUuid()
 end
 
 function taskbar.getNameByUuid(uuid)
+    local listFromKernel = taskbarPrivate.kernelEventHandler.kernelMethods.getListOfRunningTasksAndPrograms()
+
     if taskbarPrivate.listActivePrograms[uuid] ~= nil then
         return taskbarPrivate.listActivePrograms[uuid].name
+    elseif listFromKernel ~= nil and listFromKernel.programs[taskbarPrivate.kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid()] ~= nil then
+        return listFromKernel.programs[taskbarPrivate.kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid()].name
     end
 
     return "Unknown program"
@@ -266,7 +271,7 @@ function taskbarPrivate.updateTaskBarProgramListIfTheKernelHasMore()
     if list ~= nil then
         for key, value in pairs(list.programs) do
             if taskbarPrivate.doesNotUuidExist(value) then
-                taskbarPrivate.addProgramToList("Unknown program", value.uuid)
+                taskbarPrivate.addProgramToList(value.name, value.uuid)
             end
         end
     end

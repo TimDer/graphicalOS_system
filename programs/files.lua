@@ -72,8 +72,9 @@ files.displayMessage = function (messageString)
     end)
 end
 
-files.openProgram = function (pathToFile, openAsKernel)
+files.openProgram = function (programName, pathToFile, openAsKernel)
     files.gframework.kernelEventHandler.kernelMethods.AddProgram(
+        programName,
         pathToFile,
         openAsKernel,
         files.gframework.kernelEventHandler.kernelMethods.createWindow(
@@ -233,12 +234,12 @@ files.topBarMenus = function ()
             "Open-With",
             files.gframework.topBar.createTopBarMenuItem("Edit", function ()
                 if files.selectedFile.isAFolder == false then
-                    files.openProgram("edit " .. files.selectedFile.filePath, false)
+                    files.openProgram("Edit " .. "\"" .. files.selectedFile.fileName .. "\"", "edit " .. files.selectedFile.filePath, false)
                 end
             end),
             files.gframework.topBar.createTopBarMenuItem("Paint", function ()
                 if files.selectedFile.isAFolder == false then
-                    files.openProgram("paint " .. files.selectedFile.filePath, false)
+                    files.openProgram("Paint " .. "\"" .. files.selectedFile.fileName .. "\"", "paint " .. files.selectedFile.filePath, false)
                 end
             end)
         ),
@@ -307,7 +308,7 @@ files.fileBrowser = function ()
         files.selectedFile.isAFolder = true
 
         if isAFolder == false then
-            files.openProgram(file.path, files.settings.openAsKernel)
+            files.openProgram(file.fileOrFolder, file.path, files.settings.openAsKernel)
         else
             files.changeDirectory(file.path)
             files.topBar.openWithMenu.allowDisplay(false)

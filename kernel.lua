@@ -93,6 +93,7 @@ function kernelPrivate.getListOfRunningTasksAndPrograms()
     for coroutinesKey, coroutinesValue in pairs(kernelPrivate.coroutines) do
         for key, value in pairs(kernelPrivate.coroutines[coroutinesKey]) do
             listOfCoroutines[coroutinesKey][value.uuid] = {}
+            listOfCoroutines[coroutinesKey][value.uuid].name = value.name
             listOfCoroutines[coroutinesKey][value.uuid].uuid = value.uuid
             listOfCoroutines[coroutinesKey][value.uuid].isProgramCurrentlyActive = value.isProgramCurrentlyActive
         end
@@ -299,11 +300,12 @@ function kernelPrivate.coroutineHelper()
     end
 end
 
-function kernelPrivate.createCoroutine(programTaskType, func, programIsProgramCurrentlyActive, useKernelEvents, processWindow)
+function kernelPrivate.createCoroutine(programTaskName, programTaskType, func, programIsProgramCurrentlyActive, useKernelEvents, processWindow)
     local uuid = kernelPrivate.UuidGenerator.CreateUuid(9)
     kernelPrivate.programOrTaskRedrawEvent = true
 
     kernelPrivate.coroutines[programTaskType][uuid] = {
+        name = programTaskName,
         uuid = uuid,
         taskType = programTaskType,
         isProgramCurrentlyActive = programIsProgramCurrentlyActive,
@@ -344,7 +346,7 @@ function kernel.createWindow(parentTerm, x, y, width, height)
     return returnWindow
 end
 
-function kernel.AddTask(taskPath, useKernelEvents)
+function kernel.AddTask(name, taskPath, useKernelEvents)
     if type(taskPath) ~= "string" then
         error("You can only add strings to this method. Supplied type: " .. type(taskPath), 2)
     end
@@ -352,7 +354,7 @@ function kernel.AddTask(taskPath, useKernelEvents)
     local windowW, windowH = kernelPrivate.rootTerm.getSize()
     local taskWindow = kernel.createWindow(kernelPrivate.rootTerm, 1, 1, windowW, windowH)
 
-    kernelPrivate.createCoroutine("tasks", function ()
+    kernelPrivate.createCoroutine(name, "tasks", function ()
         shell.run(taskPath)
 
         while true do
@@ -361,7 +363,7 @@ function kernel.AddTask(taskPath, useKernelEvents)
     end, true, useKernelEvents, taskWindow)
 end
 
-function kernel.AddProgram(programPath, useKernelEvents, processWindow)
+function kernel.AddProgram(name, programPath, useKernelEvents, processWindow)
     if type(programPath) ~= "string" then
         error("You can only add strings to this method supplied type: " .. type(programPath), 2)
     end
@@ -372,7 +374,7 @@ function kernel.AddProgram(programPath, useKernelEvents, processWindow)
         end 
     end
 
-    kernelPrivate.createCoroutine("programs", function ()
+    kernelPrivate.createCoroutine(name, "programs", function ()
         shell.run(programPath)
 
         while true do
