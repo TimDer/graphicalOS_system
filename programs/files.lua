@@ -82,8 +82,8 @@ files.openProgram = function (programName, pathToFile, openAsKernel)
             files.gframework.kernelEventHandler.kernelData.rootTerm,
             1,
             2,
-            51,
-            17
+            windowWidth,
+            windowHeight
         )
     )
 end
