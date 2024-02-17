@@ -1,5 +1,13 @@
 local files = {}
 local windowWidth, windowHeight = term.getSize()
+local miniWindowPosX = 0
+local miniWindowPosY = 0
+if windowWidth == 26 then
+    miniWindowPosX = 12
+elseif windowWidth == 39 then
+    miniWindowPosX = 6
+    miniWindowPosY = 2
+end
 
 files.gframework = require "/graphicalOS_system/apis/gframework"
 
@@ -103,7 +111,7 @@ end
 files.createFileMiniWindow = function ()
     local isFile = true
     
-    files.createFileWindow = files.settings.createFileWindowItemGroup.createMiniWindow("Create file", 16, 6, 20, 5, 128)
+    files.createFileWindow = files.settings.createFileWindowItemGroup.createMiniWindow("Create file", 16 - miniWindowPosX, 6 - miniWindowPosY, 20, 5, 128)
     files.createFileWindow.setOnWindowClose(function ()
         files.settings.mainItemGroup.excludeFromExecution(false)
         files.gframework.draw()
@@ -116,14 +124,14 @@ files.createFileMiniWindow = function ()
         files.gframework.term.screenBuffer.draw()
     end)
     files.settings.createFileWindowItemGroup.createRadioButton(
-        files.gframework.createRadioButtonItem("File", 17, 10, 256, 128, 1, true, function (status)
+        files.gframework.createRadioButtonItem("File", 17 - miniWindowPosX, 10 - miniWindowPosY, 256, 128, 1, true, function (status)
             isFile = true
         end),
-        files.gframework.createRadioButtonItem("Folder", 25, 10, 256, 128, 1, false, function (status)
+        files.gframework.createRadioButtonItem("Folder", 25 - miniWindowPosX, 10 - miniWindowPosY, 256, 128, 1, false, function (status)
             isFile = false
         end)
     )
-    files.settings.createFileWindowItemGroup.createReadBar(17, 8, 18, 256, 1, function (fileName)
+    files.settings.createFileWindowItemGroup.createReadBar(17 - miniWindowPosX, 8 - miniWindowPosY, 18, 256, 1, function (fileName)
         if fs.exists(files.currentDirectory .. "/" .. fileName) == false then
             if isFile then
                 local createFile = io.open(files.currentDirectory .. "/" .. fileName, "w")
@@ -139,7 +147,7 @@ files.createFileMiniWindow = function ()
 end
 
 files.deleteFileOrFolderMiniWindow = function ()
-    files.deleteFileOrFolderWindow = files.settings.deleteFileOrFolderItemGroup.createMiniWindow("Delete", 16, 6, 20, 5, 128)
+    files.deleteFileOrFolderWindow = files.settings.deleteFileOrFolderItemGroup.createMiniWindow("Delete", 16 - miniWindowPosX, 6 - miniWindowPosY, 20, 5, 128)
     files.deleteFileOrFolderWindow.setOnWindowClose(function ()
         files.settings.mainItemGroup.excludeFromExecution(false)
         files.fileOrFolderToBeDeleted.setLabelName("")
@@ -156,9 +164,9 @@ files.deleteFileOrFolderMiniWindow = function ()
         files.gframework.term.screenBuffer.draw()
     end)
 
-    files.fileOrFolderToBeDeleted = files.settings.deleteFileOrFolderItemGroup.createLabel("File", 17, 8, 128, 1)
+    files.fileOrFolderToBeDeleted = files.settings.deleteFileOrFolderItemGroup.createLabel("File", 17 - miniWindowPosX, 8 - miniWindowPosY, 128, 1)
 
-    local deleteFileOrFolder = files.settings.deleteFileOrFolderItemGroup.createButton("Delete", 17, 10, 0, 16384, 1)
+    local deleteFileOrFolder = files.settings.deleteFileOrFolderItemGroup.createButton("Delete", 17 - miniWindowPosX, 10 - miniWindowPosY, 0, 16384, 1)
     deleteFileOrFolder.onClick(function ()
         fs.delete(files.currentDirectory .. "/" .. files.selectedFile.fileName)
         files.deleteFileOrFolderWindow.closeWindow()
@@ -168,7 +176,7 @@ files.deleteFileOrFolderMiniWindow = function ()
 end
 
 files.renameFileOrFolderMiniWindow = function ()
-    files.renameFileOrFolderWindow = files.settings.renameFileOrFolderItemGroup.createMiniWindow("Rename", 16, 6, 20, 3, 128)
+    files.renameFileOrFolderWindow = files.settings.renameFileOrFolderItemGroup.createMiniWindow("Rename", 16 - miniWindowPosX, 6 - miniWindowPosY, 20, 3, 128)
     files.renameFileOrFolderWindow.setOnWindowClose(function ()
         files.settings.mainItemGroup.excludeFromExecution(false)
         files.changeDirectory(files.currentDirectory)
@@ -183,7 +191,7 @@ files.renameFileOrFolderMiniWindow = function ()
         files.gframework.term.screenBuffer.draw()
     end)
 
-    files.settings.renameFileOrFolderItemGroup.createReadBar(17, 8, 18, 256, 1, function (newFileName)
+    files.settings.renameFileOrFolderItemGroup.createReadBar(17 - miniWindowPosX, 8 - miniWindowPosY, 18, 256, 1, function (newFileName)
         files.gframework.topBar.addFunctionAtTheEnd(function ()
             if fs.exists(files.currentDirectory .. "/" .. newFileName) == false then
                 fs.move(files.currentDirectory .. "/" .. files.selectedFile.fileName, files.currentDirectory .. "/" .. newFileName)
