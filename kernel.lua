@@ -159,6 +159,11 @@ function kernelPrivate.executeTask(value, events)
         runCoroutine = false
     end
 
+    if value.isFirstRun == true then
+        value.isFirstRun = false
+        kernelPrivate.programOrTaskRedrawEvent = true
+    end
+
     if runCoroutine == true then
         coroutine.resume(value.coroutine, kernelPrivate.detectWhichEventtypeToUse(value, events))
     end
@@ -204,6 +209,11 @@ function kernelPrivate.executeProgram(value, events, isRunningInActiveMode)
 
     if value.useKernelEvents == false and events[1] == kernelPrivate.listOfEvents.createGraphicalOsEventString("redraw_all") then
         runCoroutine = false
+    end
+
+    if value.isFirstRun == true then
+        value.isFirstRun = false
+        kernelPrivate.programOrTaskRedrawEvent = true
     end
 
     if runCoroutine and kernelPrivate.blockXandYPosition(events, value.processWindow) then
@@ -309,6 +319,7 @@ function kernelPrivate.createCoroutine(programTaskName, programTaskType, func, p
         uuid = uuid,
         taskType = programTaskType,
         isProgramCurrentlyActive = programIsProgramCurrentlyActive,
+        isFirstRun = true,
         useKernelEvents = useKernelEvents,
         processWindow = processWindow,
         coroutine = coroutine.create(func)

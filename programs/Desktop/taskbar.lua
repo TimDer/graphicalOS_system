@@ -265,7 +265,7 @@ function taskbarPrivate.doesNotUuidExist(t)
     return returnValue
 end
 
-function taskbarPrivate.updateTaskBarProgramListIfTheKernelHasMore()
+function taskbar.updateTaskBarProgramListIfTheKernelHasMore()
     local list = taskbarPrivate.kernelEventHandler.kernelMethods.getListOfRunningTasksAndPrograms()
 
     if list ~= nil then
@@ -285,7 +285,7 @@ function taskbar.setProperties(event, button, X, Y, rootTermWidth, rootTermHeigh
     taskbarPrivate.button = button
     taskbarPrivate.X = X
     taskbarPrivate.Y = Y
-    taskbarPrivate.updateTaskBarProgramListIfTheKernelHasMore()
+    taskbar.updateTaskBarProgramListIfTheKernelHasMore()
 end
 
 return taskbar

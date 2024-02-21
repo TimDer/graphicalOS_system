@@ -34,6 +34,7 @@ end
 
 function desktopApplication.redrawEvent()
     local currentRunningProgramUuid = desktopApplication.kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid()
+    desktopApplication.taskbar.updateTaskBarProgramListIfTheKernelHasMore()
 
     if currentRunningProgramUuid == "" then
         desktopApplication.exitToDesktop()
