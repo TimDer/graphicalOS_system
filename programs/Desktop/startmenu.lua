@@ -70,18 +70,21 @@ function startmenuPrivate.drawMenu()
         end
     end
 
-    local shutdownPos = startmenuPrivate.rootTermHeight - 2
-    local rebootPos = startmenuPrivate.rootTermHeight - 3
+    local exitPos = startmenuPrivate.rootTermHeight - 2
+    local shutdownPos = startmenuPrivate.rootTermHeight - 3
+    local rebootPos = startmenuPrivate.rootTermHeight - 4
     
     term.setTextColor(1)
     term.setCursorPos(2, shutdownPos)
     term.write("Shutdown")
     term.setCursorPos(2, rebootPos)
     term.write("Reboot")
+    term.setCursorPos(2, exitPos)
+    term.write("Exit-OS")
 end
 
 function startmenuPrivate.drawMenuBtns()
-    local startHeight = startmenuPrivate.rootTermHeight - 5
+    local startHeight = startmenuPrivate.rootTermHeight - 6
 
     term.setTextColor(1)
     for key, value in pairs(startmenuPrivate.programsList) do
@@ -119,7 +122,7 @@ function startmenuPrivate.getMenuWidth()
 end
 
 function startmenuPrivate.getMenuHight()
-    local defaultPos = startmenuPrivate.rootTermHeight - 4
+    local defaultPos = startmenuPrivate.rootTermHeight - 5
 
     if next(startmenuPrivate.programsList) ~= nil then
         defaultPos = defaultPos - 1
@@ -137,7 +140,7 @@ function startmenuPrivate.getMenuHight()
 end
 
 function startmenuPrivate.startProgram()
-    local startHeight = startmenuPrivate.rootTermHeight - 5
+    local startHeight = startmenuPrivate.rootTermHeight - 6
     local menuMaxWidth = startmenuPrivate.getMenuWidth()
 
     for key, value in pairs(startmenuPrivate.programsList) do
@@ -146,6 +149,18 @@ function startmenuPrivate.startProgram()
         end
         
         startHeight = startHeight - 1
+    end
+end
+
+function startmenuPrivate.exitGraphicalOS()
+    local programsAndTasks = startmenuPrivate.kernelEventHandler.kernelMethods.getListOfRunningTasksAndPrograms()
+
+    if type(programsAndTasks) == "table" then
+        for threadKey, threadValue in pairs(programsAndTasks) do
+            for programsOrTasksKey, programsOrTasksValue in pairs(threadValue) do
+                startmenuPrivate.kernelEventHandler.kernelMethods.closeTaskOrProgram(programsOrTasksValue.uuid)
+            end
+        end
     end
 end
 
@@ -164,11 +179,13 @@ function startmenu.startBtnClick()
             startmenuPrivate.kernelEventHandler.kernelMethods.setCurrentRunningProgram(startmenuPrivate.minimisedProgramUuid)
             startmenuPrivate.minimisedProgramUuid = ""
             startmenuPrivate.drawStartmenu()
-        elseif startmenuPrivate.Y == (startmenuPrivate.rootTermHeight - 2) and startmenuPrivate.X >= 2 and startmenuPrivate.X <= 9 and startmenu.desktopOption == "startmenu" then
+        elseif startmenuPrivate.Y == (startmenuPrivate.rootTermHeight - 2) and startmenuPrivate.X >= 2 and startmenuPrivate.X <= 8 and startmenu.desktopOption == "startmenu" then
+            startmenuPrivate.exitGraphicalOS()
+        elseif startmenuPrivate.Y == (startmenuPrivate.rootTermHeight - 3) and startmenuPrivate.X >= 2 and startmenuPrivate.X <= 9 and startmenu.desktopOption == "startmenu" then
             os.shutdown()
-        elseif startmenuPrivate.Y == (startmenuPrivate.rootTermHeight - 3) and startmenuPrivate.X >= 2 and startmenuPrivate.X <= 7 and startmenu.desktopOption == "startmenu" then
+        elseif startmenuPrivate.Y == (startmenuPrivate.rootTermHeight - 4) and startmenuPrivate.X >= 2 and startmenuPrivate.X <= 7 and startmenu.desktopOption == "startmenu" then
             os.reboot()
-        elseif startmenuPrivate.Y <= (startmenuPrivate.rootTermHeight - 5) and startmenuPrivate.Y >= (startmenuPrivate.getMenuHight() + 1) and startmenuPrivate.X <= (startmenuPrivate.getMenuWidth() - 1) and startmenu.desktopOption == "startmenu" then
+        elseif startmenuPrivate.Y <= (startmenuPrivate.rootTermHeight - 6) and startmenuPrivate.Y >= (startmenuPrivate.getMenuHight() + 1) and startmenuPrivate.X <= (startmenuPrivate.getMenuWidth() - 1) and startmenu.desktopOption == "startmenu" then
             startmenu.desktopOption = "desktop"
             startmenuPrivate.drawStartmenu()
             startmenuPrivate.startProgram()
