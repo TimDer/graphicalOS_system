@@ -4,7 +4,9 @@ local data = {}
 function returnFunctions.stopTheOs()
     term.redirect(data.currentTerm)
     term.setBackgroundColor(32768)
-    for posIterator = 1,19
+
+    local sizeX, sizeY = term.getSize()
+    for posIterator = 1,sizeY
     do
         term.setCursorPos(1,posIterator)
         term.clearLine()
