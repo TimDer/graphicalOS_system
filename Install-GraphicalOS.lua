@@ -63,6 +63,7 @@ ginstaller.downloader = function ()
         downloader.downloadFileFromGithub("/apis/settings.lua")
         downloader.downloadFileFromGithub("/apis/stop.lua")
         downloader.downloadFileFromGithub("/apis/uuid.lua")
+        downloader.downloadFileFromGithub("/graphicalOS_system/apis/ascii.lua")
     end
 
     downloader.run = function ()
