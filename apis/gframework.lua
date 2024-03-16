@@ -809,13 +809,15 @@ gframework.createItemGroup = function ()
         end
 
         radioButtonItem.action = gframework.action.createAction(function (events)
-            local currentCheckedKey = radioButtonItem.getCurrentCheckedKey()
-            local newChecked = radioButtonItem.changeCurrentCheckedKey(currentCheckedKey, events)
+            if events[1] == "mouse_click" then
+                local currentCheckedKey = radioButtonItem.getCurrentCheckedKey()
+                local newChecked = radioButtonItem.changeCurrentCheckedKey(currentCheckedKey, events)
 
-            if newChecked.radioButtonHasChanged then
-                radioButtonItem.draw()
-                gframework.term.screenBuffer.draw()
-                radioButtonItem.buttonsList[newChecked.radioButtonChangedToKey].action()
+                if newChecked.radioButtonHasChanged then
+                    radioButtonItem.draw()
+                    gframework.term.screenBuffer.draw()
+                    radioButtonItem.buttonsList[newChecked.radioButtonChangedToKey].action()
+                end
             end
         end)
 
@@ -988,12 +990,14 @@ gframework.createItemGroup = function ()
         end
 
         readBarItem.action = gframework.action.createAction(function (events)
-            if gframeworkPrivate.hasBlinkNotBeenSet == true then
-                readBarItem.openOrCloseReadBar(events)
-                readBarItem.typeKeysIntoTheInput(events)
-                gframework.term.screenBuffer.draw()
-            else
-                readBarItem.isReadBarOpen = false
+            if events[1] == "mouse_click" or events[1] == "char" or events[1] == "key" or events[1] == "key_up" then
+                if gframeworkPrivate.hasBlinkNotBeenSet == true then
+                    readBarItem.openOrCloseReadBar(events)
+                    readBarItem.typeKeysIntoTheInput(events)
+                    gframework.term.screenBuffer.draw()
+                else
+                    readBarItem.isReadBarOpen = false
+                end
             end
         end)
 
@@ -1288,20 +1292,17 @@ gframework.run = function (...)
     while true do
         local events = {gframework.kernelEventHandler.pullKernelEvent()}
 
-        if events[1] ~= "timer" then
-            gframework.topBar.action(events)
+        gframework.topBar.action(events)
         
-            for key, value in pairs(itemGroups) do
-                if type(value) == "table" and value.run ~= nil and value.blockItemGroupForTopBar == false then
-                    value.run(events)
-                end
+        for key, value in pairs(itemGroups) do
+            if type(value) == "table" and value.run ~= nil and value.blockItemGroupForTopBar == false then
+                value.run(events)
             end
-
-            gframework.topBar.endAction()
-        else
-            gframework.timer.action(events)
         end
+
+        gframework.topBar.endAction()
         
+        gframework.timer.action(events)
 
         gframeworkPrivate.hasBlinkNotBeenSet = true
     end
