@@ -47,6 +47,35 @@ shellCommand.action = {
         end
     end,
 
+    completeShell = function (shellCommandString)
+        if #shellCommandString > 7 and string.sub(shellCommandString, 1, 7) == "kernel " then
+            shellCommandString = string.sub(shellCommandString, 8, #shellCommandString)
+        end
+
+        return shell.complete(shellCommandString)
+    end,
+
+    runProgram = function (command, isKernelProgram)
+        local programCoroutine = coroutine.create(function ()
+            shell.run( command )
+        end)
+        local events = {}
+
+        while true do
+            if isKernelProgram then
+                coroutine.resume(programCoroutine, shellCommand.gframework.kernelEventHandler.returnKernelEvent(table.unpack(events)))
+            else
+                coroutine.resume(programCoroutine, table.unpack(events))
+            end
+            
+            if coroutine.status(programCoroutine) == "dead" then
+                break
+            end
+
+            events = {os.pullEventRaw()}
+        end
+    end,
+
     createTerminal = function ()
         local terminal = {}
 
@@ -56,15 +85,17 @@ shellCommand.action = {
             write( shell.dir() .. "> " )
             term.setTextColour( 1 )
             
-            local command = read( nil, shellCommand.shellCommandHistory, shell.complete )
+            local command = read( nil, shellCommand.shellCommandHistory, shellCommand.action.completeShell )
             shellCommand.action.insertIntoHistory(command)
             
             if command == "exit" and shellCommand.shellMode == "gui" then
                 print("In order to exit the shell, close the window.")
             elseif command == "exit" and shellCommand.shellMode == "nogui" then
                 shell.run("shutdown")
+            elseif #command > 6 and string.sub(command, 1, 7) == "kernel " then
+                shellCommand.action.runProgram(string.sub(command, 8, #command), true)
             else
-                shell.run( command )
+                shellCommand.action.runProgram(command, false)
             end
         end)
 

@@ -45,6 +45,7 @@ ginstaller.downloader = function ()
     downloader.installShell = function ()
         downloader.downloadFileFromGithub("/programs/shell/completionFunctions.lua")
         downloader.downloadFileFromGithub("/programs/shell/main.lua")
+        downloader.downloadFileFromGithub("/programs/shell/commands/kernel.lua")
         downloader.downloadFileFromGithub("/programs/shell/commands/gsettings.lua")
         downloader.downloadFileFromGithub("/programs/shell/commands/rungraphicalos.lua")
     end

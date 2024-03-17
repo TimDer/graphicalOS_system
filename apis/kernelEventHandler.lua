@@ -5,6 +5,8 @@ kernelEventHandlerPrivate.listOfEvents = require "/graphicalOS_system/apis/ListO
 kernelEventHandlerPrivate.kernelRedrawEvent = function (craftOsEvents) end
 kernelEventHandlerPrivate.kernelTerminateEvent = function (craftOsEvents) end
 
+kernelEventHandlerPrivate.craftOsEvents = {}
+
 kernelEventHandler.kernelMethods = {}
 kernelEventHandler.kernelMethods.AddTask = function (name, taskPath, useKernelEvents) return end
 kernelEventHandler.kernelMethods.AddProgram = function (name, programPath, useKernelEvents, processWindow) return end
@@ -35,6 +37,30 @@ function kernelEventHandler.setKernelRedrawEvent(func)
     end
 end
 
+function kernelEventHandler.returnKernelEvent(...)
+    local newCraftOsEvents = {...}
+    local returnCraftOsEvents = {}
+
+    if #newCraftOsEvents > 0 then
+        returnCraftOsEvents = newCraftOsEvents
+    else
+        returnCraftOsEvents = kernelEventHandlerPrivate.craftOsEvents
+    end
+
+    return returnCraftOsEvents,
+           kernelEventHandler.kernelMethods.AddTask,
+           kernelEventHandler.kernelMethods.AddProgram,
+           kernelEventHandler.kernelMethods.createWindow,
+           kernelEventHandler.kernelData.rootTerm,
+           kernelEventHandler.kernelMethods.getListOfRunningTasksAndPrograms,
+           kernelEventHandler.kernelData.uuid,
+           kernelEventHandler.kernelData.isProgramCurrentlyActive,
+           kernelEventHandler.kernelMethods.closeTaskOrProgram,
+           kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid,
+           kernelEventHandler.kernelMethods.setCurrentRunningProgram,
+           kernelEventHandler.kernelData.listOfProgramsAndTasks
+end
+
 function kernelEventHandler.pullKernelEvent()
     local newCraftOsEvents = {}
 
@@ -52,6 +78,7 @@ function kernelEventHandler.pullKernelEvent()
               setCurrentRunningProgram,
               listOfProgramsAndTasks = coroutine.yield()
 
+        kernelEventHandlerPrivate.craftOsEvents = craftOsEvents
         kernelEventHandler.kernelMethods.AddTask = AddTask
         kernelEventHandler.kernelMethods.AddProgram = AddProgram
         kernelEventHandler.kernelMethods.createWindow = createWindow
