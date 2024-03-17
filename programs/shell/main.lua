@@ -3,6 +3,7 @@ shellCommand.gframework = require "/graphicalOS_system/apis/gframework"
 shellCommand.completionFunctions = require "/graphicalOS_system/programs/shell/completionFunctions"
 shellCommand.args = {...}
 shellCommand.shellCommandHistory = {}
+shellCommand.shellMode = "gui"
 shellCommand.itemGroups = {
     terminal = shellCommand.gframework.createItemGroup()
 }
@@ -11,9 +12,8 @@ shellCommand.action = {
     basics = function ()
         shell.setDir("/")
 
-        local shellMode = "gui"
         if shellCommand.args[1] == "nogui" then
-            shellMode = shellCommand.args[1]
+            shellCommand.shellMode = shellCommand.args[1]
             term.clear()
             term.setTextColour(16)
             term.setCursorPos(1, 1)
@@ -59,9 +59,9 @@ shellCommand.action = {
             local command = read( nil, shellCommand.shellCommandHistory, shell.complete )
             shellCommand.action.insertIntoHistory(command)
             
-            if command == "exit" and shellMode == "gui" then
+            if command == "exit" and shellCommand.shellMode == "gui" then
                 print("In order to exit the shell, close the window.")
-            elseif command == "exit" and shellMode == "nogui" then
+            elseif command == "exit" and shellCommand.shellMode == "nogui" then
                 shell.run("shutdown")
             else
                 shell.run( command )
