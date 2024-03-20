@@ -19,46 +19,102 @@ function completionFunctionsPrivate.checkWhichArgumentToUse(inputArgument, theAr
     local returnValue = nil
 
     if type(theArguments) == "table" then
+        returnValue = {}
+
         for key, value in pairs(theArguments) do
             local getArgumentEnd = completionFunctionsPrivate.createArgumentEnding(value, inputArgument)
 
             if getArgumentEnd ~= nil then
                 if inputArgument .. getArgumentEnd == value then
-                    returnValue = getArgumentEnd
+                    table.insert(returnValue, getArgumentEnd)
                 end
             end
+        end
+
+        if next(returnValue) == nil then
+            returnValue = nil
         end
     end
 
     return returnValue
 end
 
-function completionFunctionsPrivate.gsettings(currentShell, index, argument, previous)
-    if index == 1 then
-        local getArgumentEnd = completionFunctionsPrivate.checkWhichArgumentToUse(argument, {
-            "startup"
-        })
+completionFunctionsPrivate.argumentBuilder = {}
 
-        if getArgumentEnd ~= nil then
-            return { getArgumentEnd }
+function completionFunctionsPrivate.argumentBuilder.complete(buildArgument, index, argument, previous)
+    local commandTable = completionFunctionsPrivate.argumentBuilder.build(buildArgument, 1, index, argument, previous)
+
+    return completionFunctionsPrivate.checkWhichArgumentToUse(argument, commandTable)
+end
+
+function completionFunctionsPrivate.argumentBuilder.build(buildArgument, indexPos, index, argument, previous)
+    local argumentValue = nil
+
+    if indexPos == index then
+        argumentValue = {}
+        for key, value in pairs(buildArgument) do
+            table.insert(argumentValue, value.name)
         end
-    elseif index == 2 and previous[2] == "startup" then
-        local getArgumentEnd = completionFunctionsPrivate.checkWhichArgumentToUse(argument, {
-            "true",
-            "false",
-            "status"
-        })
-        
-        if getArgumentEnd ~= nil then
-            return { getArgumentEnd }
+    elseif next(buildArgument) ~= nil then
+        argumentValue = {}
+        for key, value in pairs(buildArgument) do
+            if value.name == previous[indexPos + 1] then
+                argumentValue = completionFunctionsPrivate.argumentBuilder.build(value.arguments, indexPos + 1, index, argument, previous)
+                --table.insert(argumentValue, value.name)
+                break
+            end
         end
     end
 
-    return nil
+    return argumentValue
+end
+
+function completionFunctionsPrivate.arguments(currentShell, index, argument, previous)
+    return completionFunctionsPrivate.argumentBuilder.complete(
+        {
+            {
+                name = "startup",
+                arguments = {
+                    {
+                        name = "true",
+                        arguments = {}
+                    },
+                    {
+                        name = "false",
+                        arguments = {}
+                    },
+                    {
+                        name = "status",
+                        arguments = {}
+                    }
+                }
+            },
+            {
+                name = "config",
+                arguments = {
+                    {
+                        name = "add",
+                        arguments = {}
+                    },
+                    {
+                        name = "edit",
+                        arguments = {}
+                    },
+                    {
+                        name = "remove",
+                        arguments = {}
+                    }
+                }
+            }
+        },
+        index,
+        argument,
+        previous
+    )
 end
 
 function completionFunctions.setFunctions()
-    shell.setCompletionFunction("graphicalOS_system/programs/shell/commands/gsettings.lua", completionFunctionsPrivate.gsettings)
+    shell.setCompletionFunction("graphicalOS_system/programs/shell/commands/gsettings.lua", completionFunctionsPrivate.arguments)
 end
 
 return completionFunctions
