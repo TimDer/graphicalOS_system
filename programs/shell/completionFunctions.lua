@@ -60,7 +60,6 @@ function completionFunctionsPrivate.argumentBuilder.build(buildArgument, indexPo
         for key, value in pairs(buildArgument) do
             if value.name == previous[indexPos + 1] then
                 argumentValue = completionFunctionsPrivate.argumentBuilder.build(value.arguments, indexPos + 1, index, argument, previous)
-                --table.insert(argumentValue, value.name)
                 break
             end
         end
