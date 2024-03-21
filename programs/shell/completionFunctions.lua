@@ -50,6 +50,10 @@ end
 function completionFunctionsPrivate.argumentBuilder.build(buildArgument, indexPos, index, argument, previous)
     local argumentValue = nil
 
+    if type(buildArgument) == "function" then
+        buildArgument = buildArgument()
+    end
+
     if indexPos == index then
         argumentValue = {}
         for key, value in pairs(buildArgument) do
