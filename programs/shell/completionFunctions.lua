@@ -72,43 +72,35 @@ function completionFunctionsPrivate.argumentBuilder.build(buildArgument, indexPo
     return argumentValue
 end
 
+function completionFunctionsPrivate.argumentBuilder.createArgumentItem(name, arguments)
+    return {
+        name = name,
+        arguments = arguments
+    }
+end
+
 function completionFunctionsPrivate.arguments(currentShell, index, argument, previous)
     return completionFunctionsPrivate.argumentBuilder.complete(
         {
-            {
-                name = "startup",
-                arguments = {
-                    {
-                        name = "true",
-                        arguments = {}
-                    },
-                    {
-                        name = "false",
-                        arguments = {}
-                    },
-                    {
-                        name = "status",
-                        arguments = {}
-                    }
-                }
-            },
-            {
-                name = "config",
-                arguments = {
-                    {
-                        name = "add",
-                        arguments = {}
-                    },
-                    {
-                        name = "edit",
-                        arguments = {}
-                    },
-                    {
-                        name = "remove",
-                        arguments = {}
-                    }
-                }
-            }
+            completionFunctionsPrivate.argumentBuilder.createArgumentItem("startup", {
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("true", {}),
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("false", {}),
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("status", {})
+            }),
+            completionFunctionsPrivate.argumentBuilder.createArgumentItem("config", {
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("add", {}),
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("edit", {}),
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("remove", {}),
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("func", function ()
+                    local argsTable = {}
+
+                    for i = 1, 100, 1 do
+                        table.insert(argsTable, completionFunctionsPrivate.argumentBuilder.createArgumentItem("test-" .. tostring(i), {}))
+                    end
+
+                    return argsTable
+                end),
+            }),
         },
         index,
         argument,
