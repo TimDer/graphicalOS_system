@@ -79,6 +79,57 @@ function completionFunctionsPrivate.argumentBuilder.createArgumentItem(name, arg
     }
 end
 
+function completionFunctionsPrivate.argumentBuilder.folderArgument(argument, arguments, indexPos, index, previous)
+    local funcTable = {}
+
+    function funcTable.setupArguments(argument, arguments)
+        local folderArgument = {}
+
+        local filePath = "/"
+        local filePathTable = {}
+        for value in string.gmatch(argument, "([^/]+)") do
+            table.insert(filePathTable, value)
+        end
+        if fs.isDir(argument) ~= true and shell.resolveProgram(argument) == nil then
+            table.remove(filePathTable, #filePathTable)
+        end
+
+        if #filePathTable >= 1 then
+            filePath = ""
+            for key, value in pairs(filePathTable) do
+                filePath = filePath .. "/" .. value
+            end
+        elseif #argument == 0 then
+            table.insert(folderArgument, completionFunctionsPrivate.argumentBuilder.createArgumentItem(".", arguments))
+            return folderArgument
+        end
+
+        if fs.isDir(filePath) then
+            local itemsInPath = fs.list(filePath)
+
+            for key, value in pairs(itemsInPath) do
+                if filePath == "/" then
+                    table.insert(folderArgument, completionFunctionsPrivate.argumentBuilder.createArgumentItem("/" .. value .. "/", arguments))
+                else
+                    table.insert(folderArgument, completionFunctionsPrivate.argumentBuilder.createArgumentItem(filePath .. "/" .. value .. "/", arguments))
+                end
+            end
+        end
+
+        return folderArgument
+    end
+
+    function funcTable.argumentOrPrevious(argument, arguments, indexPos, index, previous)
+        if index > indexPos then
+            return {completionFunctionsPrivate.argumentBuilder.createArgumentItem(previous[indexPos + 1], arguments)}
+        else
+            return funcTable.setupArguments(argument, arguments)
+        end
+    end
+
+    return funcTable.argumentOrPrevious(argument, arguments, indexPos, index, previous)
+end
+
 function completionFunctionsPrivate.arguments(currentShell, index, argument, previous)
     return completionFunctionsPrivate.argumentBuilder.complete(
         {
@@ -93,11 +144,11 @@ function completionFunctionsPrivate.arguments(currentShell, index, argument, pre
                 completionFunctionsPrivate.argumentBuilder.createArgumentItem("remove", {}),
                 completionFunctionsPrivate.argumentBuilder.createArgumentItem("func", function ()
                     local argsTable = {}
-
+    
                     for i = 1, 100, 1 do
                         table.insert(argsTable, completionFunctionsPrivate.argumentBuilder.createArgumentItem("test-" .. tostring(i), {}))
                     end
-
+    
                     return argsTable
                 end),
             }),
