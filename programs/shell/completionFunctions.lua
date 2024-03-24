@@ -141,16 +141,7 @@ function completionFunctionsPrivate.arguments(currentShell, index, argument, pre
             completionFunctionsPrivate.argumentBuilder.createArgumentItem("config", {
                 completionFunctionsPrivate.argumentBuilder.createArgumentItem("add", {}),
                 completionFunctionsPrivate.argumentBuilder.createArgumentItem("edit", {}),
-                completionFunctionsPrivate.argumentBuilder.createArgumentItem("remove", {}),
-                completionFunctionsPrivate.argumentBuilder.createArgumentItem("func", function ()
-                    local argsTable = {}
-    
-                    for i = 1, 100, 1 do
-                        table.insert(argsTable, completionFunctionsPrivate.argumentBuilder.createArgumentItem("test-" .. tostring(i), {}))
-                    end
-    
-                    return argsTable
-                end),
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("remove", {})
             }),
         },
         index,
