@@ -1,6 +1,8 @@
 local asciiModule = {}
 local asciiModulePrivate = {}
 
+asciiModulePrivate.settings = require "/graphicalOS_system/apis/settings"
+
 asciiModulePrivate.convertDecimalToHexadecimal = function (decimalNum)
     local result = ""
 
@@ -107,12 +109,14 @@ asciiModule.file.load = function (pathToFile)
     local tableHex = {}
     local returnHexTable = {}
 
-    local file = fs.open(pathToFile, "r")
-    local fileContentsString = string.gsub(file.readAll(), "\n", " ")
-    file.close()
+    if asciiModulePrivate.settings.file_exists(pathToFile) then
+        local file = fs.open(pathToFile, "r")
+        local fileContentsString = string.gsub(file.readAll(), "\n", " ")
+        file.close()
 
-    for hexNum in string.gmatch(fileContentsString, "([^ ]+)") do
-        table.insert(returnHexTable, hexNum)
+        for hexNum in string.gmatch(fileContentsString, "([^ ]+)") do
+            table.insert(returnHexTable, hexNum)
+        end
     end
 
     return returnHexTable
