@@ -8,7 +8,7 @@ gSettings.commands = {
         local function changeStartupStatus(startupWithGui)
             local replaceStartupFileContentsWith = "shell.run(\"/graphicalOS_system/startup.lua\")"
             if startupWithGui == false then
-                replaceStartupFileContentsWith = "shell.run(\"/graphicalOS_system/programs/shell/main.lua nogui\")"
+                replaceStartupFileContentsWith = "shell.run(\"/graphicalOS_system/legacyShellStartup.lua\")"
             end
         
             local createStartupFile = function ()
@@ -20,7 +20,7 @@ gSettings.commands = {
             if gSettings.settingsApi.file_exists("/startup.lua") then
                 local startupFileRead = fs.open("/startup.lua", "r")
                 local dataFromStartupFile = startupFileRead.readLine()
-                if dataFromStartupFile == "shell.run(\"/graphicalOS_system/startup.lua\")" or dataFromStartupFile == "shell.run(\"/graphicalOS_system/programs/shell/main.lua nogui\")" then
+                if dataFromStartupFile == "shell.run(\"/graphicalOS_system/startup.lua\")" or dataFromStartupFile == "shell.run(\"/graphicalOS_system/legacyShellStartup.lua\")" then
                     createStartupFile()
                 else
                     print("Can not edit a custom startup file")
