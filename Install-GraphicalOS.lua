@@ -47,7 +47,6 @@ ginstaller.downloader = function ()
         downloader.downloadFileFromGithub("/programs/shell/main.lua")
         downloader.downloadFileFromGithub("/programs/shell/commands/kernel.lua")
         downloader.downloadFileFromGithub("/programs/shell/commands/gsettings.lua")
-        downloader.downloadFileFromGithub("/programs/shell/commands/rungraphicalos.lua")
     end
 
     downloader.installDesktopEnv = function ()
@@ -67,6 +66,7 @@ ginstaller.downloader = function ()
         downloader.downloadFileFromGithub("/apis/ascii.lua")
         downloader.downloadFileFromGithub("/apis/json.lua")
         downloader.downloadFileFromGithub("/apis/loadFile.lua")
+        downloader.downloadFileFromGithub("/apis/configuration.lua")
     end
 
     downloader.run = function ()
