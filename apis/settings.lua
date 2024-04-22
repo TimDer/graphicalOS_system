@@ -31,6 +31,18 @@ graphicalOsRootSettings.prepareGraphicalOsForBoot = function()
         fs.makeDir("/graphicalOS_data/user_data")
         fs.makeDir("/graphicalOS_data/programs")
         fs.makeDir("/graphicalOS_data/users")
+    else
+        if fs.isDir("/graphicalOS_data/user_data") == false then
+            fs.makeDir("/graphicalOS_data/user_data")
+        end
+
+        if fs.isDir("/graphicalOS_data/programs") == false then
+            fs.makeDir("/graphicalOS_data/programs")
+        end
+
+        if fs.isDir("/graphicalOS_data/users") == false then
+            fs.makeDir("/graphicalOS_data/users")
+        end
     end
 end
 
