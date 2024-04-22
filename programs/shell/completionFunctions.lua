@@ -131,18 +131,45 @@ function completionFunctionsPrivate.argumentBuilder.folderArgument(argument, arg
 end
 
 function completionFunctionsPrivate.arguments(currentShell, index, argument, previous)
+    local folderArgument = completionFunctionsPrivate.argumentBuilder.folderArgument(argument, {}, 4, index, previous)
+
     return completionFunctionsPrivate.argumentBuilder.complete(
         {
+            completionFunctionsPrivate.argumentBuilder.createArgumentItem("add", {
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("program", {
+                    completionFunctionsPrivate.argumentBuilder.createArgumentItem("startup", folderArgument),
+                    completionFunctionsPrivate.argumentBuilder.createArgumentItem("list", folderArgument),
+                }),
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("task", {
+                    completionFunctionsPrivate.argumentBuilder.createArgumentItem("startup", folderArgument),
+                    completionFunctionsPrivate.argumentBuilder.createArgumentItem("list", folderArgument),
+                }),
+            }),
+            completionFunctionsPrivate.argumentBuilder.createArgumentItem("remove", {
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("program", {
+                    completionFunctionsPrivate.argumentBuilder.createArgumentItem("startup", folderArgument),
+                    completionFunctionsPrivate.argumentBuilder.createArgumentItem("list", folderArgument),
+                }),
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("task", {
+                    completionFunctionsPrivate.argumentBuilder.createArgumentItem("startup", folderArgument),
+                    completionFunctionsPrivate.argumentBuilder.createArgumentItem("list", folderArgument),
+                }),
+            }),
+            completionFunctionsPrivate.argumentBuilder.createArgumentItem("list", {
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("program", {
+                    completionFunctionsPrivate.argumentBuilder.createArgumentItem("startup", {}),
+                    completionFunctionsPrivate.argumentBuilder.createArgumentItem("list", {}),
+                }),
+                completionFunctionsPrivate.argumentBuilder.createArgumentItem("task", {
+                    completionFunctionsPrivate.argumentBuilder.createArgumentItem("startup", {}),
+                    completionFunctionsPrivate.argumentBuilder.createArgumentItem("list", {}),
+                }),
+            }),
             completionFunctionsPrivate.argumentBuilder.createArgumentItem("startup", {
                 completionFunctionsPrivate.argumentBuilder.createArgumentItem("true", {}),
                 completionFunctionsPrivate.argumentBuilder.createArgumentItem("false", {}),
                 completionFunctionsPrivate.argumentBuilder.createArgumentItem("status", {})
-            }),
-            completionFunctionsPrivate.argumentBuilder.createArgumentItem("config", {
-                completionFunctionsPrivate.argumentBuilder.createArgumentItem("add", {}),
-                completionFunctionsPrivate.argumentBuilder.createArgumentItem("edit", {}),
-                completionFunctionsPrivate.argumentBuilder.createArgumentItem("remove", {})
-            }),
+            })
         },
         index,
         argument,
