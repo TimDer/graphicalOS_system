@@ -3,6 +3,7 @@ local kernelPrivate = {}
 
 kernelPrivate.listOfEvents = require "/graphicalOS_system/apis/ListOfEvents"
 kernelPrivate.UuidGenerator = require "/graphicalOS_system/apis/uuid"
+kernelPrivate.jsonFileLoader = require "/graphicalOS_system/apis/json"
 
 --[[
     {
@@ -392,6 +393,42 @@ function kernel.AddProgram(name, programPath, useKernelEvents, processWindow)
             local events = {coroutine.yield()}
         end
     end, true, useKernelEvents, processWindow)
+end
+
+function kernel.loadProgramsAndTasksFromSettingsFile()
+    local settingsData = kernelPrivate.jsonFileLoader.readFile("/graphicalOS_data/user_data/settings.bin")
+
+    if settingsData.data ~= nil and settingsData.data.kernel ~= nil then
+        if settingsData.data.kernel.startupPrograms ~= nil then
+            for key, value in pairs(settingsData.data.kernel.startupPrograms) do
+                kernel.AddProgram(value.name, value.pathToProgram, value.useKernelEvents, kernel.createWindow(
+                    kernelPrivate.rootTerm,
+                    value.x,
+                    value.y,
+                    value.width,
+                    value.height
+                ))
+            end
+        end
+
+        if settingsData.data.kernel.startupTasks ~= nil then
+            for key, value in pairs(settingsData.data.kernel.startupTasks) do
+                kernel.AddTask(value.name, value.pathToProgram, value.useKernelEvents)
+            end
+        end
+
+        if settingsData.data.kernel.listOfPrograms ~= nil then
+            for key, value in pairs(settingsData.data.kernel.listOfPrograms) do
+                kernel.addProgramToList(value.name, value.pathToProgram, value.useKernelEvents)
+            end
+        end
+
+        if settingsData.data.kernel.listOfTasks ~= nil then
+            for key, value in pairs(settingsData.data.kernel.listOfTasks) do
+                kernel.addTaskToList(value.name, value.pathToProgram, value.useKernelEvents)
+            end
+        end
+    end
 end
 
 function kernel.runKernel()
