@@ -1,1 +1,0 @@
-shell.run("/graphicalOS_system/startup.lua")
