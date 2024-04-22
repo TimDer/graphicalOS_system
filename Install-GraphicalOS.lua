@@ -36,6 +36,7 @@ ginstaller.downloader = function ()
         downloader.downloadFileFromGithub("/kernel.lua")
         downloader.downloadFileFromGithub("/main.lua")
         downloader.downloadFileFromGithub("/startup.lua")
+        downloader.downloadFileFromGithub("/legacyShellStartup.lua")
     end
 
     downloader.installFileBrowser = function ()
@@ -69,6 +70,42 @@ ginstaller.downloader = function ()
         downloader.downloadFileFromGithub("/apis/configuration.lua")
     end
 
+    downloader.configureOs = function ()
+        local configurationApi = require "/graphicalOS_system/apis/configuration"
+
+        local sizeX, sizeY = term.getSize()
+
+        configurationApi.kernelSettings.addProgramToList(
+            "Shell",
+            "/graphicalOS_system/programs/shell/main.lua",
+            true,
+            1,
+            2,
+            sizeX,
+            sizeY - 2
+        )
+
+        configurationApi.kernelSettings.addProgramToList(
+            "Files",
+            "/graphicalOS_system/programs/files.lua",
+            true,
+            1,
+            2,
+            sizeX,
+            sizeY - 2
+        )
+
+        configurationApi.kernelSettings.AddTask(
+            "Desktop",
+            "/graphicalOS_system/programs/Desktop/main.lua",
+            true
+        )
+
+        configurationApi.kernelSettings.save()
+
+        shell.run("/graphicalOS_system/programs/shell/commands/gsettings.lua startup true")
+    end
+
     downloader.run = function ()
         term.clear()
         term.setCursorPos(1, 1)
@@ -81,7 +118,7 @@ ginstaller.downloader = function ()
             downloader.installDesktopEnv()
             downloader.installApis()
 
-            shell.run("/graphicalOS_system/programs/shell/commands/gsettings.lua startup true")
+            downloader.configureOs()
         end
     end
 
