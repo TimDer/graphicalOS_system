@@ -135,26 +135,34 @@ configuration.public.kernelSettings = {
     end,
 
     removeProgramFromList = function (pathToProgram)
-        configuration.Private.kernelSettings.checkIfTaskOrProgramExistsInSettingsFile("listOfPrograms", pathToProgram, function (newPathToProgram)
-            configuration.public.kernelSettings.settingsFile.data.kernel.listOfPrograms[newPathToProgram] = nil
+        configuration.Private.kernelSettings.errorHandlingProgramOrTask("", pathToProgram, true, 1, 1, 1, 1, function ()
+            configuration.Private.kernelSettings.checkIfTaskOrProgramExistsInSettingsFile("listOfPrograms", pathToProgram, function (newPathToProgram)
+                configuration.public.kernelSettings.settingsFile.data.kernel.listOfPrograms[newPathToProgram] = nil
+            end)
         end)
     end,
 
     removeTask = function (pathToProgram)
-        configuration.Private.kernelSettings.checkIfTaskOrProgramExistsInSettingsFile("startupTasks", pathToProgram, function (newPathToProgram)
-            configuration.public.kernelSettings.settingsFile.data.kernel.startupTasks[newPathToProgram] = nil
+        configuration.Private.kernelSettings.errorHandlingProgramOrTask("", pathToProgram, true, 1, 1, 1, 1, function ()
+            configuration.Private.kernelSettings.checkIfTaskOrProgramExistsInSettingsFile("startupTasks", pathToProgram, function (newPathToProgram)
+                configuration.public.kernelSettings.settingsFile.data.kernel.startupTasks[newPathToProgram] = nil
+            end)
         end)
     end,
 
     removeProgram = function (pathToProgram)
-        configuration.Private.kernelSettings.checkIfTaskOrProgramExistsInSettingsFile("startupPrograms", pathToProgram, function (newPathToProgram)
-            configuration.public.kernelSettings.settingsFile.data.kernel.startupPrograms[newPathToProgram] = nil
+        configuration.Private.kernelSettings.errorHandlingProgramOrTask("", pathToProgram, true, 1, 1, 1, 1, function ()
+            configuration.Private.kernelSettings.checkIfTaskOrProgramExistsInSettingsFile("startupPrograms", pathToProgram, function (newPathToProgram)
+                configuration.public.kernelSettings.settingsFile.data.kernel.startupPrograms[newPathToProgram] = nil
+            end)
         end)
     end,
 
     removeTaskFromList = function (pathToProgram)
-        configuration.Private.kernelSettings.checkIfTaskOrProgramExistsInSettingsFile("listOfTasks", pathToProgram, function (newPathToProgram)
-            configuration.public.kernelSettings.settingsFile.data.kernel.listOfTasks[newPathToProgram] = nil
+        configuration.Private.kernelSettings.errorHandlingProgramOrTask("", pathToProgram, true, 1, 1, 1, 1, function ()
+            configuration.Private.kernelSettings.checkIfTaskOrProgramExistsInSettingsFile("listOfTasks", pathToProgram, function (newPathToProgram)
+                configuration.public.kernelSettings.settingsFile.data.kernel.listOfTasks[newPathToProgram] = nil
+            end)
         end)
     end,
 

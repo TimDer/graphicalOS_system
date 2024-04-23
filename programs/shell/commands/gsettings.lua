@@ -208,6 +208,19 @@ gSettings.commands = {
         end
     end,
 
+    removeItemFromSettingsFile = function (func)
+        local file = gSettings.args[4]
+
+        if file ~= nil and type(func) == "function" then
+            func(file)
+            gSettings.configuration.kernelSettings.save()
+        elseif type(func) ~= "function" then
+            error("Function expected got " .. type(func), 1)
+        else
+            print("Error")
+        end
+    end,
+
     commands = {
         add = {
             program = {
@@ -230,22 +243,18 @@ gSettings.commands = {
         remove = {
             program = {
                 startup = function ()
-                    gSettings.configuration.kernelSettings.removeProgram(gSettings.args[4])
-                    gSettings.configuration.kernelSettings.save()
+                    gSettings.commands.removeItemFromSettingsFile(gSettings.configuration.kernelSettings.removeProgram)
                 end,
                 list = function ()
-                    gSettings.configuration.kernelSettings.removeProgramFromList(gSettings.args[4])
-                    gSettings.configuration.kernelSettings.save()
+                    gSettings.commands.removeItemFromSettingsFile(gSettings.configuration.kernelSettings.removeProgramFromList)
                 end
             },
             task = {
                 startup = function ()
-                    gSettings.configuration.kernelSettings.removeTask(gSettings.args[4])
-                    gSettings.configuration.kernelSettings.save()
+                    gSettings.commands.removeItemFromSettingsFile(gSettings.configuration.kernelSettings.removeTask)
                 end,
                 list = function ()
-                    gSettings.configuration.kernelSettings.removeTaskFromList(gSettings.args[4])
-                    gSettings.configuration.kernelSettings.save()
+                    gSettings.commands.removeItemFromSettingsFile(gSettings.configuration.kernelSettings.removeTaskFromList)
                 end
             }
         },
