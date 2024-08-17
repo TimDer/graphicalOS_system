@@ -43,6 +43,21 @@ function desktopApplication.redrawEvent()
     end
 end
 
+function desktopApplication.termResizeEvent(craftOsEvents)
+    local width, height = term.getSize()
+    rootTermWidth = width
+    rootTermHeight = height
+    desktopApplication.draw.setWindowHeightAndWidthCurrentTerm(rootTermWidth, rootTermHeight)
+    desktopApplication.draw.drawDesktop()
+    desktopApplication.taskbar.setProperties(craftOsEvents[1], craftOsEvents[2], craftOsEvents[3], craftOsEvents[4], rootTermWidth, rootTermHeight, desktopApplication.kernelEventHandler)
+    desktopApplication.taskbar.drawTaskbar()
+    desktopApplication.redrawEvent()
+end
+
+function desktopApplication.startStartupPrograms()
+    desktopApplication.kernelEventHandler.listOfStartupPrograms.startPrograms(1, 2, rootTermWidth, rootTermHeight - 2)
+end
+
 function desktopApplication.terminateEvent(event)
     desktopApplication.closeProgram(event[1], "", 0, 0)
 end
@@ -52,8 +67,10 @@ function desktopApplication.runDesktop()
     desktopApplication.draw.drawDesktop()
     desktopApplication.taskbar.setProperties("", "", 0, 0, rootTermWidth, rootTermHeight, desktopApplication.kernelEventHandler)
     desktopApplication.taskbar.drawTaskbar()
+    desktopApplication.kernelEventHandler.setKernelTermResizeEvent(desktopApplication.termResizeEvent)
     desktopApplication.kernelEventHandler.setKernelRedrawEvent(desktopApplication.redrawEvent)
     desktopApplication.kernelEventHandler.setKernelTerminateEvent(desktopApplication.terminateEvent)
+    desktopApplication.kernelEventHandler.setProgramStarterAtStartup(desktopApplication.startStartupPrograms)
     
     while true do
         local event, button, X, Y = desktopApplication.kernelEventHandler.pullKernelEvent()

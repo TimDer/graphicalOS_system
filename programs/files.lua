@@ -347,6 +347,14 @@ files.topBarMenus()
 files.MessageArea()
 files.fileBrowser()
 
+files.gframework.setTermResizeEvent(function (events)
+    local newMainFileBrowserwidth, newMainFileBrowserheight = files.gframework.term.screenBuffer.getSize()
+
+    files.mainFileBrowser.resizeFileBrowser(1, 2, newMainFileBrowserwidth, newMainFileBrowserheight - 1)
+
+    files.gframework.term.screenBuffer.forceClear()
+    files.gframework.draw()
+end)
 files.gframework.collectItemGroups(
     files.settings.mainItemGroup,
     files.settings.createFileWindowItemGroup,

@@ -38,12 +38,45 @@ kernelPrivate.listOfProgramsAndTasks = {}
 kernelPrivate.listOfProgramsAndTasks.tasks = {}
 kernelPrivate.listOfProgramsAndTasks.programs = {}
 
+kernelPrivate.listOfStartupProgramsLaunchPrograms = true
+kernelPrivate.listOfStartupPrograms = {}
+--[[
+    {
+        number = {
+            name: string
+            programPath: string
+            useKernelEvents: boolean
+        }
+    }
+]]
+kernelPrivate.listOfStartupPrograms.list = {}
+function kernelPrivate.listOfStartupPrograms.startPrograms(x, y, width, height)
+    if kernelPrivate.listOfStartupProgramsLaunchPrograms == true then
+        for key, value in ipairs(kernelPrivate.listOfStartupPrograms.list) do
+            kernel.AddProgram(value.name, value.programPath, value.useKernelEvents, kernel.createWindow(
+                kernelPrivate.rootTerm,
+                x,
+                y,
+                width,
+                height
+            ))
+        end
+
+        kernelPrivate.listOfStartupProgramsLaunchPrograms = false
+    end
+end
+
 kernelPrivate.rootTerm = term.current()
 
 kernelPrivate.areThereAnyTasks = false
 kernelPrivate.areThereAnyPrograms = false
 
 kernelPrivate.programOrTaskRedrawEvent = false
+
+kernelPrivate.termResizeEventPreviousValues = {
+    rootTermHeight = 0,
+    rootTermWidth = 0
+}
 
 -------------------------------------------------------------------------------------------------
 -- Event functions
@@ -129,7 +162,8 @@ function kernelPrivate.detectWhichEventtypeToUse(programOrTaskValue, craftOsEven
                kernelPrivate.closeTaskOrProgram,
                kernelPrivate.getCurrentRunningProgramUuid,
                kernelPrivate.setCurrentRunningProgram,
-               kernelPrivate.listOfProgramsAndTasks
+               kernelPrivate.listOfProgramsAndTasks,
+               kernelPrivate.listOfStartupPrograms
     end
 
     return table.unpack(craftOsEvents)
@@ -153,10 +187,20 @@ function kernelPrivate.fixXandYPositioning(events, processWindow)
 end
 
 function kernelPrivate.executeTask(value, events)
+    local rootWidth, rootHeight = kernelPrivate.rootTerm.getSize()
     kernelPrivate.redirectTermToTheDesignatedWindow(value.processWindow)
     local runCoroutine = true
+    local taskWidth, taskHeight = value.processWindow.window.getSize()
 
-    if value.useKernelEvents == false and events[1] == kernelPrivate.listOfEvents.createGraphicalOsEventString("redraw_all") then
+    if taskWidth ~= rootWidth or taskHeight ~= rootHeight then
+        value.processWindow.window.reposition(value.processWindow.startX, value.processWindow.startY, rootWidth, rootHeight)
+    end
+
+    if  value.useKernelEvents == false and
+        (
+            events[1] == kernelPrivate.listOfEvents.createGraphicalOsEventString("redraw_all") or
+            events[1] == kernelPrivate.listOfEvents.createGraphicalOsEventString("start_startup_programs")
+        ) then
         runCoroutine = false
     end
 
@@ -198,17 +242,41 @@ function kernelPrivate.blockXandYPosition(events, processWindow)
     return returnValue
 end
 
-function kernelPrivate.executeProgram(value, events, isRunningInActiveMode)
-    kernelPrivate.redirectTermToTheDesignatedWindow(value.processWindow)
-    local runCoroutine = true
-    local xSize, ySize = value.processWindow.window.getSize()
-    if isRunningInActiveMode then
-        value.processWindow.window.reposition(value.processWindow.startX, value.processWindow.startY, xSize, ySize)
-    else
-        value.processWindow.window.reposition(value.processWindow.startX, 99999999, xSize, ySize)
+function kernelPrivate.resizeProgramWhenResizeEventIsCalledOrWhenProgramIsSetToInActive(isRunningInActiveMode, events, rootCurrentWidth, rootCurrentHeight, xWindowSize, yWindowSize, value)
+    if events[1] == "term_resize" then
+        -- Calculate height
+        if rootCurrentHeight ~= kernelPrivate.termResizeEventPreviousValues.rootTermHeight then
+            local differentWindowSizeComparedToMainTerm = kernelPrivate.termResizeEventPreviousValues.rootTermHeight - yWindowSize
+            yWindowSize = rootCurrentHeight - differentWindowSizeComparedToMainTerm
+        end
+        
+        -- Calculate width
+        if rootCurrentWidth ~= kernelPrivate.termResizeEventPreviousValues.rootTermWidth then
+            local differentWindowSizeComparedToMainTerm = kernelPrivate.termResizeEventPreviousValues.rootTermWidth - xWindowSize
+            xWindowSize = rootCurrentWidth - differentWindowSizeComparedToMainTerm
+        end
     end
 
-    if value.useKernelEvents == false and events[1] == kernelPrivate.listOfEvents.createGraphicalOsEventString("redraw_all") then
+    if isRunningInActiveMode then
+        value.processWindow.window.reposition(value.processWindow.startX, value.processWindow.startY, xWindowSize, yWindowSize)
+    else
+        value.processWindow.window.reposition(value.processWindow.startX, 99999999, xWindowSize, yWindowSize)
+    end
+end
+
+function kernelPrivate.executeProgram(value, events, isRunningInActiveMode)
+    local rootCurrentWidth, rootCurrentHeight = kernelPrivate.rootTerm.getSize()
+    kernelPrivate.redirectTermToTheDesignatedWindow(value.processWindow)
+    local runCoroutine = true
+    local xWindowSize, yWindowSize = value.processWindow.window.getSize()
+
+    kernelPrivate.resizeProgramWhenResizeEventIsCalledOrWhenProgramIsSetToInActive(isRunningInActiveMode, events, rootCurrentWidth, rootCurrentHeight, xWindowSize, yWindowSize, value)
+
+    if value.useKernelEvents == false and
+        (
+            events[1] == kernelPrivate.listOfEvents.createGraphicalOsEventString("redraw_all") or
+            events[1] == kernelPrivate.listOfEvents.createGraphicalOsEventString("start_startup_programs")
+        ) then
         runCoroutine = false
     end
 
@@ -294,6 +362,21 @@ function kernelPrivate.checkIfThereNeedsToBeARedrawEvent()
     end
 end
 
+function kernelPrivate.startTheStartupProgramsIfNotStartedAutomatically()
+    if kernelPrivate.programOrTaskRedrawEvent == false and kernelPrivate.listOfStartupProgramsLaunchPrograms == true then
+        os.queueEvent(kernelPrivate.listOfEvents.createGraphicalOsEventString("start_startup_programs"))
+    end
+end
+
+function kernelPrivate.resetPreviousTermSizes(events)
+    if events[1] == "term_resize" then
+        local rootCurrentWidth, rootCurrentHeight = kernelPrivate.rootTerm.getSize()
+
+        kernelPrivate.termResizeEventPreviousValues.rootTermHeight = rootCurrentHeight
+        kernelPrivate.termResizeEventPreviousValues.rootTermWidth = rootCurrentWidth
+    end
+end
+
 function kernelPrivate.coroutineHelper()
     os.queueEvent("startKernel")
     local events = table.pack(os.pullEventRaw())
@@ -302,8 +385,12 @@ function kernelPrivate.coroutineHelper()
     while true do
         kernelPrivate.runCoroutines(events)
 
+        kernelPrivate.resetPreviousTermSizes(events)
+
         -- Terminate if there is nothing to run
         if kernelPrivate.checkIfAnyTasksOrProgramsAreRunning() then break end
+
+        kernelPrivate.startTheStartupProgramsIfNotStartedAutomatically()
 
         kernelPrivate.checkIfThereNeedsToBeARedrawEvent()
         
@@ -395,19 +482,35 @@ function kernel.AddProgram(name, programPath, useKernelEvents, processWindow)
     end, true, useKernelEvents, processWindow)
 end
 
-function kernel.loadProgramsAndTasksFromSettingsFile()
+function kernel.AddStartupProgram(name, programPath, useKernelEvents)
+    if type(programPath) ~= "string" then
+        error("You can only add strings to this method supplied type: " .. type(programPath), 2)
+    end
+
+    table.insert(kernelPrivate.listOfStartupPrograms.list, {
+        name = name,
+        programPath = programPath,
+        useKernelEvents = useKernelEvents
+    })
+end
+
+function kernel.loadProgramsAndTasksFromSettingsFile(autoStartupPrograms)
     local settingsData = kernelPrivate.jsonFileLoader.readFile("/graphicalOS_data/user_data/settings.bin")
 
     if settingsData.data ~= nil and settingsData.data.kernel ~= nil then
         if settingsData.data.kernel.startupPrograms ~= nil then
             for key, value in pairs(settingsData.data.kernel.startupPrograms) do
-                kernel.AddProgram(value.name, value.pathToProgram, value.useKernelEvents, kernel.createWindow(
-                    kernelPrivate.rootTerm,
-                    value.x,
-                    value.y,
-                    value.width,
-                    value.height
-                ))
+                if type(autoStartupPrograms) == "boolean" and autoStartupPrograms == true then
+                    kernel.AddProgram(value.name, value.pathToProgram, value.useKernelEvents, kernel.createWindow(
+                        kernelPrivate.rootTerm,
+                        value.x,
+                        value.y,
+                        value.width,
+                        value.height
+                    ))
+                elseif type(autoStartupPrograms) == "boolean" and autoStartupPrograms == false then
+                    kernel.AddStartupProgram(value.name, value.pathToProgram, value.useKernelEvents)
+                end
             end
         end
 
@@ -430,8 +533,13 @@ function kernel.loadProgramsAndTasksFromSettingsFile()
         end
     end
 end
-
+ 
 function kernel.runKernel()
+    local xWidth, yHeight = kernelPrivate.rootTerm.getSize()
+
+    kernelPrivate.termResizeEventPreviousValues.rootTermWidth = xWidth
+    kernelPrivate.termResizeEventPreviousValues.rootTermHeight = yHeight
+
     kernelPrivate.coroutineHelper()
 end
 

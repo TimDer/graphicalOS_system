@@ -15,7 +15,7 @@ graphicalOs.stopTheOs.getCurrentTerm(term.current())
 -- graphicalOs.kernel.AddTask("Desktop", "/graphicalOS_system/programs/Desktop/main.lua", true)
 
 -- Load programs and tasks from the settings file
-graphicalOs.kernel.loadProgramsAndTasksFromSettingsFile()
+graphicalOs.kernel.loadProgramsAndTasksFromSettingsFile(false)
 
 -- Start the desktop ENV
 graphicalOs.kernel.runKernel()

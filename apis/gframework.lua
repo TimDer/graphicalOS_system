@@ -105,6 +105,13 @@ gframework.term = {
                     }
                 end
             end,
+
+            forceClear = function ()
+                buffer.screenBufferPrivate.currentBuffer = {}
+                buffer.screenBufferPrivate.previousBuffer = {}
+
+                buffer.screenBuffer.clear()
+            end,
         
             clear = function ()
                 local xSize, ySize = buffer.screenBufferPrivate.currentTerm.getSize()
@@ -170,11 +177,13 @@ gframework.term = {
             write = function (writeStringToBuffer)
                 if writeStringToBuffer ~= "" then
                     for indexPosX = buffer.screenBufferPrivate.cursorPosX, buffer.screenBufferPrivate.cursorPosX + string.len(writeStringToBuffer) - 1, 1 do
-                        buffer.screenBufferPrivate.currentBuffer[buffer.screenBufferPrivate.cursorPosY][indexPosX] = {
-                            textColor = buffer.screenBufferPrivate.textColor,
-                            backgroundColor = buffer.screenBufferPrivate.backgroundColor,
-                            char = string.sub(writeStringToBuffer, indexPosX - (buffer.screenBufferPrivate.cursorPosX - 1), indexPosX - (buffer.screenBufferPrivate.cursorPosX - 1))
-                        }
+                        if buffer.screenBufferPrivate.currentBuffer[buffer.screenBufferPrivate.cursorPosY] ~= nil and buffer.screenBufferPrivate.currentBuffer[buffer.screenBufferPrivate.cursorPosY][indexPosX] ~= nil then
+                            buffer.screenBufferPrivate.currentBuffer[buffer.screenBufferPrivate.cursorPosY][indexPosX] = {
+                                textColor = buffer.screenBufferPrivate.textColor,
+                                backgroundColor = buffer.screenBufferPrivate.backgroundColor,
+                                char = string.sub(writeStringToBuffer, indexPosX - (buffer.screenBufferPrivate.cursorPosX - 1), indexPosX - (buffer.screenBufferPrivate.cursorPosX - 1))
+                            }
+                        end
                     end
 
                     local width, height = buffer.screenBuffer.getSize()
@@ -182,6 +191,8 @@ gframework.term = {
 
                     if newPosX <= width then
                         buffer.screenBufferPrivate.cursorPosX = newPosX
+                    elseif newPosX > width then
+                        buffer.screenBufferPrivate.cursorPosX = width
                     end
                 end
             end,
@@ -1251,6 +1262,19 @@ gframework.timer = {
     end
 }
 
+gframeworkPrivate.termResizeEvent = {}
+gframework.setTermResizeEvent = function (...)
+    local termResizeFunctions = {...}
+
+    for termResizeFunctionKey, termResizeFunctionValue in pairs(termResizeFunctions) do
+        if type(termResizeFunctionValue) == "function" then
+            table.insert(gframeworkPrivate.termResizeEvent, termResizeFunctionValue)
+        else
+            error("setTermResizeEvent only allows functions", 1)
+        end
+    end
+end
+
 gframeworkPrivate.collectedGroupItems = {}
 gframework.collectItemGroups = function (...)
     gframeworkPrivate.collectedGroupItems = table.pack(...)
@@ -1288,6 +1312,14 @@ gframework.run = function (...)
     if next(itemGroups) == nil and next(gframeworkPrivate.collectedGroupItems) ~= nil then
         itemGroups = gframeworkPrivate.collectedGroupItems
     end
+
+    gframework.kernelEventHandler.setKernelTermResizeEvent(function (events)
+        gframework.term.screenBuffer.clear()
+
+        for key, value in pairs(gframeworkPrivate.termResizeEvent) do
+            value(events)
+        end
+    end)
 
     while true do
         local events = {gframework.kernelEventHandler.pullKernelEvent()}

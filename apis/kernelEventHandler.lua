@@ -4,6 +4,8 @@ local kernelEventHandlerPrivate = {}
 kernelEventHandlerPrivate.listOfEvents = require "/graphicalOS_system/apis/ListOfEvents"
 kernelEventHandlerPrivate.kernelRedrawEvent = function (craftOsEvents) end
 kernelEventHandlerPrivate.kernelTerminateEvent = function (craftOsEvents) end
+kernelEventHandlerPrivate.kernelTermResizeEvent = function (craftOsEvents) end
+kernelEventHandlerPrivate.programStarterAtStartup = function (craftOsEvents) end
 
 kernelEventHandlerPrivate.craftOsEvents = {}
 
@@ -15,6 +17,10 @@ kernelEventHandler.kernelMethods.getListOfRunningTasksAndPrograms = function () 
 kernelEventHandler.kernelMethods.closeTaskOrProgram = function (programOrTaskUuid) end
 kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid = function () return "" end
 kernelEventHandler.kernelMethods.setCurrentRunningProgram = function (uuid) end
+
+kernelEventHandler.listOfStartupPrograms = {}
+kernelEventHandler.listOfStartupPrograms.list = {}
+kernelEventHandler.listOfStartupPrograms.startPrograms = function (x, y, width, height) end
 
 kernelEventHandler.kernelData = {}
 kernelEventHandler.kernelData.rootTerm = term.current()
@@ -34,6 +40,18 @@ end
 function kernelEventHandler.setKernelRedrawEvent(func)
     if type(func) == "function" then
         kernelEventHandlerPrivate.kernelRedrawEvent = func
+    end
+end
+
+function kernelEventHandler.setKernelTermResizeEvent(func)
+    if type(func) == "function" then
+        kernelEventHandlerPrivate.kernelTermResizeEvent = func
+    end
+end
+
+function kernelEventHandler.setProgramStarterAtStartup(func)
+    if type(func) == "function" then
+        kernelEventHandlerPrivate.programStarterAtStartup = func
     end
 end
 
@@ -76,7 +94,8 @@ function kernelEventHandler.pullKernelEvent()
               closeTaskOrProgram,
               getCurrentRunningProgramUuid,
               setCurrentRunningProgram,
-              listOfProgramsAndTasks = coroutine.yield()
+              listOfProgramsAndTasks,
+              listOfStartupPrograms = coroutine.yield()
 
         kernelEventHandlerPrivate.craftOsEvents = craftOsEvents
         kernelEventHandler.kernelMethods.AddTask = AddTask
@@ -87,6 +106,9 @@ function kernelEventHandler.pullKernelEvent()
         kernelEventHandler.kernelMethods.getCurrentRunningProgramUuid = getCurrentRunningProgramUuid
         kernelEventHandler.kernelMethods.setCurrentRunningProgram = setCurrentRunningProgram
 
+        kernelEventHandler.listOfStartupPrograms.list = listOfStartupPrograms.list
+        kernelEventHandler.listOfStartupPrograms.startPrograms = listOfStartupPrograms.startPrograms
+
         kernelEventHandler.kernelData.rootTerm = rootTerm
         kernelEventHandler.kernelData.uuid = uuid
         kernelEventHandler.kernelData.isProgramCurrentlyActive = isProgramCurrentlyActive
@@ -96,6 +118,10 @@ function kernelEventHandler.pullKernelEvent()
             kernelEventHandlerPrivate.kernelRedrawEvent(craftOsEvents)
         elseif craftOsEvents[1] == "terminate" then
             kernelEventHandlerPrivate.kernelTerminateEvent(craftOsEvents)
+        elseif craftOsEvents[1] == "term_resize" then
+            kernelEventHandlerPrivate.kernelTermResizeEvent(craftOsEvents)
+        elseif craftOsEvents[1] == kernelEventHandlerPrivate.listOfEvents.createGraphicalOsEventString("start_startup_programs") then
+            kernelEventHandlerPrivate.programStarterAtStartup(craftOsEvents)
         else
             newCraftOsEvents = table.move(craftOsEvents, 1, #craftOsEvents, 1, newCraftOsEvents)
             break
