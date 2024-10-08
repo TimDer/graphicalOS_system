@@ -1304,14 +1304,28 @@ gframework.draw = function (...)
     gframework.term.screenBuffer.draw()
 end
 
-gframework.run = function (...)
-    local itemGroups = {...}
-
-    gframework.draw(...)
-
-    if next(itemGroups) == nil and next(gframeworkPrivate.collectedGroupItems) ~= nil then
-        itemGroups = gframeworkPrivate.collectedGroupItems
+gframework.runItemGroups = function (events)
+    for key, value in pairs(gframeworkPrivate.runItemGroups) do
+        if type(value) == "table" and value.run ~= nil and value.blockItemGroupForTopBar == false then
+            value.run(events)
+        end
     end
+end
+
+gframeworkPrivate.runItemGroups = {}
+
+gframeworkPrivate.startRun = function (loopRunFunc)
+    gframeworkPrivate.runItemGroups = {}
+
+    if next(gframeworkPrivate.collectedGroupItems) ~= nil then
+        gframeworkPrivate.runItemGroups = gframeworkPrivate.collectedGroupItems
+    end
+
+    if type(loopRunFunc) == "function" then
+        gframeworkPrivate.loopRun = loopRunFunc
+    end
+
+    gframework.draw(table.unpack(gframeworkPrivate.runItemGroups))
 
     gframework.kernelEventHandler.setKernelTermResizeEvent(function (events)
         gframework.term.screenBuffer.clear()
@@ -1320,23 +1334,34 @@ gframework.run = function (...)
             value(events)
         end
     end)
+end
+
+gframeworkPrivate.loopRun = function (events)
+    gframework.topBar.action(events)
+        
+    gframework.runItemGroups(events)
+
+    gframework.topBar.endAction()
+    
+    gframework.timer.action(events)
+end
+
+gframework.run = function (loopRunFunc)
+    gframeworkPrivate.preRun()
+
+    gframeworkPrivate.startRun(loopRunFunc)
 
     while true do
-        local events = {gframework.kernelEventHandler.pullKernelEvent()}
-
-        gframework.topBar.action(events)
-        
-        for key, value in pairs(itemGroups) do
-            if type(value) == "table" and value.run ~= nil and value.blockItemGroupForTopBar == false then
-                value.run(events)
-            end
-        end
-
-        gframework.topBar.endAction()
-        
-        gframework.timer.action(events)
+        gframeworkPrivate.loopRun({gframework.kernelEventHandler.pullKernelEvent()})
 
         gframeworkPrivate.hasBlinkNotBeenSet = true
+    end
+end
+
+gframeworkPrivate.preRun = function () end
+gframework.preRun = function (preRunFunc)
+    if type(preRunFunc) == "function" then
+        gframeworkPrivate.preRun = preRunFunc
     end
 end
 
