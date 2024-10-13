@@ -1334,6 +1334,8 @@ gframeworkPrivate.startRun = function (loopRunFunc)
             value(events)
         end
     end)
+
+    gframework.runItemGroups({})
 end
 
 gframeworkPrivate.loopRun = function (events)
