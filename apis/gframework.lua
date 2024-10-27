@@ -856,13 +856,14 @@ gframework.createItemGroup = function ()
             end
         end)
 
-        checkBoxItem.setCheckBoxStatus = function ()
+        checkBoxItem.setCheckBoxStatus = function (redrawCheckBox)
             if checkBoxItem.checked == true then
                 checkBoxItem.checked = false
-                checkBoxItem.draw()
-                gframework.term.screenBuffer.draw()
             else
                 checkBoxItem.checked = true
+            end
+
+            if redrawCheckBox == true then
                 checkBoxItem.draw()
                 gframework.term.screenBuffer.draw()
             end
@@ -871,7 +872,7 @@ gframework.createItemGroup = function ()
         checkBoxItem.action = gframework.action.createAction(function (events)
             if events[1] == "mouse_click" then
                 if events[3] == checkBoxPosX and events[4] == checkBoxPosY then
-                    checkBoxItem.setCheckBoxStatus()
+                    checkBoxItem.setCheckBoxStatus(true)
 
                     checkBoxItem.actionFunc(checkBoxItem.checked)
                 end
@@ -885,7 +886,7 @@ gframework.createItemGroup = function ()
             end
         end
 
-        checkBoxItemReturn.clickCheckBox = function (func)
+        checkBoxItemReturn.clickCheckBox = function (func, redrawCheckBox)
             local runFunc = function (checked) end
 
             if type(func) == "function" then
@@ -894,7 +895,11 @@ gframework.createItemGroup = function ()
                 runFunc = checkBoxItem.actionFunc
             end
 
-            checkBoxItem.setCheckBoxStatus()
+            if type(redrawCheckBox) == "boolean" then
+                checkBoxItem.setCheckBoxStatus(redrawCheckBox)
+            else
+                checkBoxItem.setCheckBoxStatus(true)
+            end
 
             runFunc(checkBoxItem.checked)
         end
