@@ -837,6 +837,7 @@ gframework.createItemGroup = function ()
 
     itemGroup.createCheckBox = function (checkBoxName, checkBoxPosX, checkBoxPosY, checkBoxBackgroundColor, checkBoxLabelBackgroundColor, checkBoxTextColor, checked, actionFunc)
         local checkBoxItem = {}
+        local checkBoxItemReturn = {}
 
         checkBoxItem.checked = checked
 
@@ -855,25 +856,55 @@ gframework.createItemGroup = function ()
             end
         end)
 
+        checkBoxItem.setCheckBoxStatus = function ()
+            if checkBoxItem.checked == true then
+                checkBoxItem.checked = false
+                checkBoxItem.draw()
+                gframework.term.screenBuffer.draw()
+            else
+                checkBoxItem.checked = true
+                checkBoxItem.draw()
+                gframework.term.screenBuffer.draw()
+            end
+        end
+
         checkBoxItem.action = gframework.action.createAction(function (events)
             if events[1] == "mouse_click" then
                 if events[3] == checkBoxPosX and events[4] == checkBoxPosY then
-                    if checkBoxItem.checked == true then
-                        checkBoxItem.checked = false
-                        checkBoxItem.draw()
-                        gframework.term.screenBuffer.draw()
-                    else
-                        checkBoxItem.checked = true
-                        checkBoxItem.draw()
-                        gframework.term.screenBuffer.draw()
-                    end
+                    checkBoxItem.setCheckBoxStatus()
 
-                    actionFunc(checkBoxItem.checked)
+                    checkBoxItem.actionFunc(checkBoxItem.checked)
                 end
             end
         end)
 
+        checkBoxItem.actionFunc = actionFunc
+        checkBoxItemReturn.setActionFunc = function (func)
+            if type(func) == "function" then
+                checkBoxItem.actionFunc = func
+            end
+        end
+
+        checkBoxItemReturn.clickCheckBox = function (func)
+            local runFunc = function (checked) end
+
+            if type(func) == "function" then
+                runFunc = func
+            else
+                runFunc = checkBoxItem.actionFunc
+            end
+
+            checkBoxItem.setCheckBoxStatus()
+
+            runFunc(checkBoxItem.checked)
+        end
+
+        checkBoxItemReturn.isChecked = function ()
+            return checkBoxItem.checked
+        end
+
         table.insert(itemGroup.items, checkBoxItem)
+        return checkBoxItemReturn
     end
 
     itemGroup.createLabel = function (labelName, labelPosX, labelPosY, labelBackgroundColor, labelTextColor)
