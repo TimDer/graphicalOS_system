@@ -57,10 +57,16 @@ loadFilePrivate.errorHandling = function (command, env)
     if type(command) ~= "string" then
         error("No such program: " .. type(command), 0)
     end
+
+    return env
+end
+
+loadFile.runCommand = function (...)
+    loadFile.startProgram(table.concat({ ... }, " "))
 end
 
 loadFile.startProgram = function (command, env)
-    loadFilePrivate.errorHandling(command, env)
+    env = loadFilePrivate.errorHandling(command, env)
 
     local commandList = loadFilePrivate.splitCommand(command)
     local pathToProgram = commandList[1]
