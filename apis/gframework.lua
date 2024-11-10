@@ -1313,7 +1313,14 @@ end
 
 gframeworkPrivate.collectedGroupItems = {}
 gframework.collectItemGroups = function (...)
-    gframeworkPrivate.collectedGroupItems = table.pack(...)
+    local itemGroups = table.pack(...)
+
+    for key, value in pairs(itemGroups) do
+        table.insert(gframeworkPrivate.collectedGroupItems, value)
+    end
+end
+gframework.clearItemGroups = function ()
+    gframeworkPrivate.collectedGroupItems = {}
 end
 
 gframework.draw = function (...)
