@@ -948,6 +948,9 @@ gframework.createItemGroup = function ()
     itemGroup.createCustomItem = function (item)
         if type(item) == "table" then
             table.insert(itemGroup.items, item)
+            return item
+        else
+            error("Table expected got: " .. type(item), 1)
         end
     end
 
